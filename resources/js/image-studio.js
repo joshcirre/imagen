@@ -14,29 +14,92 @@ const formats = {
 };
 
 const thumbnailTemplates = {
-    'person-text': {
-        label: 'Person + text',
+    'whats-new': {
+        label: "What's New",
+        brand: 'laravel',
+        figmaNode: '5:9008',
+        fontLabel: 'Instrument Serif + Sans SemiCondensed',
+        logo: '/img/youtube-templates/whats-new-logo.svg',
         alignment: 'left',
         headlineSize: 100,
-        slotLabel: 'Add person',
+        eyebrow: "WHAT'S NEW",
+        title: 'FLUENT\nNUMERIC',
+        supportingText: '',
+        slotLabel: 'Add person cutout',
+        imageSlots: [{ x: 78, y: 58, size: 48, rotation: 0, layer: 'above' }],
     },
-    'person-code': {
-        label: 'Person + code',
+    'cloud-bill': {
+        label: 'Cloud Bill',
+        brand: 'cloud',
+        figmaNode: '5:272000',
+        fontLabel: 'Instrument Sans Medium',
+        logo: '/img/youtube-templates/cloud-bill-logo.svg',
         alignment: 'left',
-        headlineSize: 92,
-        slotLabel: 'Add person, then code',
+        headlineSize: 100,
+        eyebrow: '5 tools to estimate',
+        title: 'your Laravel Cloud bill',
+        supportingText: '',
+        slotLabel: 'Add supporting image',
+        imageSlots: [{ x: 76, y: 38, size: 42, rotation: -8, layer: 'behind' }],
     },
-    'custom-visual': {
-        label: 'Custom visual',
-        alignment: 'left',
-        headlineSize: 88,
-        slotLabel: 'Add custom visual',
-    },
-    'text-only': {
-        label: 'Text only',
+    'cloud-comparison': {
+        label: 'Cloud vs Vapor',
+        brand: 'cloud',
+        figmaNode: '28:220441',
+        fontLabel: 'Instrument Sans Medium',
+        logo: '/img/youtube-templates/comparison-logo.svg',
         alignment: 'center',
-        headlineSize: 112,
+        headlineSize: 100,
+        eyebrow: '',
+        title: 'Cloud',
+        supportingText: 'Vapor',
         slotLabel: null,
+        imageSlots: [],
+    },
+    'starter-kits': {
+        label: 'Starter Kits',
+        brand: 'laravel',
+        figmaNode: '27:217728',
+        fontLabel: 'Instrument Sans Medium',
+        logo: null,
+        alignment: 'left',
+        headlineSize: 100,
+        eyebrow: 'Introducing the new',
+        title: 'Starter Kits',
+        supportingText: '',
+        slotLabel: 'Add person cutout',
+        imageSlots: [{ x: 84, y: 55, size: 55, rotation: 0, layer: 'above' }],
+    },
+    'cloud-ama': {
+        label: 'Cloud AMA',
+        brand: 'cloud',
+        figmaNode: '27:218797',
+        fontLabel: 'Instrument Sans Medium',
+        logo: '/img/youtube-templates/cloud-ama-logo.svg',
+        alignment: 'left',
+        headlineSize: 100,
+        eyebrow: 'Ask me anything',
+        title: 'Joe Dixon',
+        supportingText: 'with',
+        slotLabel: 'Add guest cutout',
+        imageSlots: [{ x: 94, y: 66, size: 56, rotation: 0, layer: 'above' }],
+    },
+    'nightwatch-ama': {
+        label: 'Nightwatch AMA',
+        brand: 'cloud',
+        figmaNode: '35:244539',
+        fontLabel: 'Rajdhani Medium',
+        logo: '/img/youtube-templates/nightwatch-logo-mark.svg',
+        alignment: 'left',
+        headlineSize: 100,
+        eyebrow: 'Nightwatch AMA livestream',
+        title: 'Jess Archer',
+        supportingText: 'with',
+        slotLabel: 'Add host, then guest',
+        imageSlots: [
+            { x: 84, y: 55, size: 98, rotation: 0, layer: 'above' },
+            { x: 19, y: 62, size: 13, rotation: 0, layer: 'above' },
+        ],
     },
 };
 
@@ -44,11 +107,13 @@ const templates = Object.keys(thumbnailTemplates);
 
 document.addEventListener('alpine:init', () => {
     window.Alpine.data('imageStudio', () => ({
-        brand: 'cloud',
+        brand: 'laravel',
         format: 'thumbnail',
-        template: 'person-text',
+        template: 'whats-new',
         alignment: 'left',
-        title: 'Ship Laravel without\nthe server stress.',
+        eyebrow: "WHAT'S NEW",
+        title: 'FLUENT\nNUMERIC',
+        supportingText: '',
         headlineSize: 100,
         backgroundImage: null,
         imageLibrary: [],
@@ -91,6 +156,10 @@ document.addEventListener('alpine:init', () => {
         },
 
         get brandLogo() {
+            if (this.format === 'thumbnail') {
+                return this.activeTemplate.logo;
+            }
+
             if (this.brand === 'cloud') {
                 return '/img/laravel-cloud-logo.png';
             }
@@ -104,6 +173,18 @@ document.addEventListener('alpine:init', () => {
 
         get templateSlotLabel() {
             return this.activeTemplate?.slotLabel ?? '';
+        },
+
+        get copyFontLabel() {
+            return this.format === 'thumbnail' ? this.activeTemplate.fontLabel : 'Instrument Sans';
+        },
+
+        get hasEyebrow() {
+            return this.format === 'thumbnail' && this.activeTemplate.eyebrow !== '';
+        },
+
+        get hasSupportingText() {
+            return this.format === 'thumbnail' && this.activeTemplate.supportingText !== '';
         },
 
         get artboardClassNames() {
@@ -185,8 +266,12 @@ document.addEventListener('alpine:init', () => {
             }
 
             this.template = template;
+            this.brand = definition.brand;
             this.alignment = definition.alignment;
             this.headlineSize = definition.headlineSize;
+            this.eyebrow = definition.eyebrow;
+            this.title = definition.title;
+            this.supportingText = definition.supportingText;
             this.resetCopyPosition();
             this.resetLogoLayer();
 
@@ -222,45 +307,15 @@ document.addEventListener('alpine:init', () => {
         },
 
         imagePositionsForTemplate(index) {
-            const offset = Math.min(index * 10, 24);
+            const slot = this.activeTemplate.imageSlots[index];
 
-            if (this.template === 'person-code') {
-                return {
-                    x: index === 0 ? 78 : 54 - offset / 2,
-                    y: index === 0 ? 57 : 72 - offset / 3,
-                    size: index === 0 ? 48 : 42,
-                    rotation: index === 0 ? 0 : -2,
-                    layer: index === 0 ? 'above' : 'behind',
-                };
+            if (slot) {
+                return { ...slot };
             }
 
-            if (this.template === 'custom-visual') {
-                return {
-                    x: index === 0 ? 66 : 30 + offset,
-                    y: index === 0 ? 48 : 66,
-                    size: index === 0 ? 68 : 34,
-                    rotation: index === 0 ? 0 : index % 2 === 0 ? -3 : 3,
-                    layer: 'behind',
-                };
-            }
+            const offset = Math.min(index * 8, 24);
 
-            if (this.template === 'text-only') {
-                return {
-                    x: index % 2 === 0 ? 82 - offset : 18 + offset,
-                    y: 70,
-                    size: 34,
-                    rotation: index % 2 === 0 ? 2 : -2,
-                    layer: 'behind',
-                };
-            }
-
-            return {
-                x: 78 - offset / 2,
-                y: 58,
-                size: index === 0 ? 52 : 36,
-                rotation: index === 0 ? 0 : index % 2 === 0 ? -2 : 2,
-                layer: index === 0 ? 'above' : 'behind',
-            };
+            return { x: 78 - offset, y: 62, size: 34, rotation: index % 2 === 0 ? -2 : 2, layer: 'behind' };
         },
 
         async handleImageUpload(event) {
@@ -785,8 +840,40 @@ document.addEventListener('alpine:init', () => {
             });
         },
 
+        createExportCanvas(canvas) {
+            const exportCanvas = canvas.cloneNode(true);
+
+            exportCanvas.setAttribute('data-image-studio-export-canvas', '');
+            exportCanvas.removeAttribute('data-image-studio-canvas');
+            exportCanvas.classList.add('is-exporting');
+            exportCanvas.querySelectorAll('[data-export-ignore]').forEach((element) => element.remove());
+            [exportCanvas, ...exportCanvas.querySelectorAll('*')].forEach((element) => this.sanitizeExportClone(element));
+
+            Object.assign(exportCanvas.style, {
+                position: 'fixed',
+                top: '0',
+                left: '-100000px',
+                width: `${this.selectedFormat.width}px`,
+                minWidth: `${this.selectedFormat.width}px`,
+                maxWidth: 'none',
+                height: `${this.selectedFormat.height}px`,
+                minHeight: `${this.selectedFormat.height}px`,
+                maxHeight: 'none',
+                aspectRatio: `${this.selectedFormat.width} / ${this.selectedFormat.height}`,
+                boxShadow: 'none',
+                pointerEvents: 'none',
+            });
+
+            exportCanvas.inert = true;
+            exportCanvas.setAttribute('aria-hidden', 'true');
+            document.body.append(exportCanvas);
+
+            return exportCanvas;
+        },
+
         async exportPng() {
             const canvas = this.$root.querySelector('[data-image-studio-canvas]');
+            let exportCanvas = null;
 
             if (!canvas || canvas.offsetWidth === 0) {
                 this.statusMessage = 'The canvas is not ready to export yet.';
@@ -800,7 +887,10 @@ document.addEventListener('alpine:init', () => {
                 await document.fonts.ready;
                 await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
-                const dataUrl = await domToPng(canvas, {
+                exportCanvas = this.createExportCanvas(canvas);
+                await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
+                const dataUrl = await domToPng(exportCanvas, {
                     width: this.selectedFormat.width,
                     height: this.selectedFormat.height,
                     scale: 1,
@@ -824,6 +914,7 @@ document.addEventListener('alpine:init', () => {
                 console.error(error);
                 this.statusMessage = 'Export failed. Check the browser console for details.';
             } finally {
+                exportCanvas?.remove();
                 this.isExporting = false;
             }
         },

@@ -12,6 +12,34 @@ test('the image studio is the public main page', function (): void {
     $cloudOpenGraphBackground = getimagesize(public_path('img/laravel-cloud-og-background.png'));
     $laravelLogo = getimagesize(public_path('img/laravel-logo.png'));
     $laravelOpenGraphBackground = getimagesize(public_path('img/laravel-og-background.png'));
+    $templatePreviews = [
+        'whats-new',
+        'cloud-bill',
+        'cloud-comparison',
+        'starter-kits',
+        'cloud-ama',
+        'nightwatch-ama',
+    ];
+    $templateAssets = [
+        'whats-new-logo.svg',
+        'cloud-bill-product.png',
+        'cloud-bill-logo.svg',
+        'comparison-cloud-ui.png',
+        'comparison-vapor-ui.png',
+        'comparison-cloud-mark.svg',
+        'comparison-vapor-mark.svg',
+        'comparison-vs.svg',
+        'comparison-logo.svg',
+        'starter-dashboard.png',
+        'starter-register.png',
+        'starter-kit-cubes.png',
+        'cloud-ama-background.png',
+        'cloud-ama-watermark.svg',
+        'cloud-ama-logo.svg',
+        'nightwatch-dashboard.png',
+        'nightwatch-gradient.png',
+        'nightwatch-logo-mark.svg',
+    ];
 
     expect($studioStyles)->toContain("font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;")
         ->toContain('--artboard-ink: #fff;')
@@ -24,17 +52,31 @@ test('the image studio is the public main page', function (): void {
         ->toContain('right: 3.203125%;')
         ->toContain('width: 7.8125%;')
         ->toContain('height: 59.305556%;')
-        ->not->toContain('letter-spacing: -0.04em;')
-        ->not->toContain('letter-spacing: -0.065em;')
+        ->toContain("font-family: 'Instrument Serif', ui-serif, Georgia, serif;")
+        ->toContain("font-family: 'Rajdhani', ui-sans-serif, system-ui, sans-serif;")
+        ->toContain('.artboard--whats-new .artboard__copy')
+        ->toContain('.artboard--cloud-comparison .artboard__headline-row')
+        ->toContain('.artboard--starter-kits .artboard__template-word')
+        ->toContain('.artboard--cloud-ama .artboard__headline-row')
+        ->toContain('.artboard--nightwatch-ama .artboard__eyebrow')
         ->not->toContain('.artboard__rule')
-        ->and($studioScript)->toContain("'person-text': {")
-        ->toContain("'person-code': {")
-        ->toContain("'custom-visual': {")
-        ->toContain("'text-only': {")
+        ->and($studioScript)->toContain("'whats-new': {")
+        ->toContain("'cloud-bill': {")
+        ->toContain("'cloud-comparison': {")
+        ->toContain("'starter-kits': {")
+        ->toContain("'cloud-ama': {")
+        ->toContain("'nightwatch-ama': {")
+        ->toContain("figmaNode: '5:9008'")
+        ->toContain("figmaNode: '35:244539'")
+        ->toContain("fontLabel: 'Instrument Serif + Sans SemiCondensed'")
+        ->toContain("fontLabel: 'Rajdhani Medium'")
         ->toContain('resetTemplate()')
         ->toContain('template reset to its Figma defaults')
         ->toContain('sanitizeExportClone(clone)')
         ->toContain("attributeName.startsWith('x-')")
+        ->toContain('createExportCanvas(canvas)')
+        ->toContain('data-image-studio-export-canvas')
+        ->toContain('exportCanvas?.remove()')
         ->toContain('onCloneEachNode: (clone) => this.sanitizeExportClone(clone)')
         ->and(public_path('img/laravel-cloud-logo.png'))->toBeFile()
         ->and($cloudLogo)->not->toBeFalse()
@@ -57,15 +99,33 @@ test('the image studio is the public main page', function (): void {
         ->and($laravelOpenGraphBackground[0])->toBe(1800)
         ->and($laravelOpenGraphBackground[1])->toBe(945);
 
+    foreach ($templatePreviews as $templatePreview) {
+        $previewPath = public_path("img/youtube-templates/{$templatePreview}-preview.png");
+        $previewSize = getimagesize($previewPath);
+
+        expect($previewPath)->toBeFile()
+            ->and($previewSize)->not->toBeFalse()
+            ->and($previewSize[0])->toBe(1280)
+            ->and($previewSize[1])->toBe(720);
+    }
+
+    foreach ($templateAssets as $templateAsset) {
+        expect(public_path("img/youtube-templates/{$templateAsset}"))->toBeFile();
+    }
+
     get(route('dashboard'))
         ->assertSuccessful()
         ->assertSee('Create share-ready graphics.')
         ->assertSee('Laravel Cloud')
         ->assertSee('Figma')
-        ->assertSee('Person + text')
-        ->assertSee('Person + code')
-        ->assertSee('Custom visual')
-        ->assertSee('Text only')
+        ->assertSee("What's New", false)
+        ->assertSee('Cloud Bill')
+        ->assertSee('Cloud vs Vapor')
+        ->assertSee('Starter Kits')
+        ->assertSee('Cloud AMA')
+        ->assertSee('Nightwatch AMA')
+        ->assertSee('data-figma-node="5:9008"', false)
+        ->assertSee('data-figma-node="35:244539"', false)
         ->assertSee('Reset template')
         ->assertSee('Safe areas')
         ->assertSee('Mobile UI')
@@ -107,7 +167,9 @@ test('the image studio is the public main page', function (): void {
         ->assertSee('w-full!', false)
         ->assertDontSee('Live canvas')
         ->assertDontSee('status-dot', false)
-        ->assertDontSee('artboard__eyebrow', false)
+        ->assertSee('class="artboard__eyebrow"', false)
+        ->assertSee('class="artboard__supporting"', false)
+        ->assertSee('class="artboard__template-art"', false)
         ->assertDontSee('artboard__edition', false)
         ->assertDontSee('artboard__rule', false);
 });

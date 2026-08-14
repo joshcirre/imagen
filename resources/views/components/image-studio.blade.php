@@ -33,7 +33,7 @@
 
     <div class="studio-workspace">
         <aside class="studio-panel studio-panel--library" aria-label="Brand and template library">
-            <div class="studio-panel__section">
+            <div class="studio-panel__section" x-show="format === 'og'">
                 <div class="studio-panel__heading">
                     <span>Brand</span>
                     <span class="studio-panel__meta">Approved</span>
@@ -108,46 +108,63 @@
                 <div class="template-grid" x-show="format === 'thumbnail'">
                     <button
                         type="button"
-                        data-template="person-text"
+                        data-template="whats-new"
+                        data-figma-node="5:9008"
                         x-on:click="selectTemplate"
-                        x-bind:aria-pressed="template === 'person-text'"
+                        x-bind:aria-pressed="template === 'whats-new'"
                     >
-                        <span class="template-preview template-preview--person-text">
-                            <i></i>
-                            <i></i>
-                        </span>
-                        <span>Person + text</span>
+                        <img class="template-preview" src="/img/youtube-templates/whats-new-preview.png" alt="" />
+                        <span>What's New</span>
                     </button>
                     <button
                         type="button"
-                        data-template="person-code"
+                        data-template="cloud-bill"
+                        data-figma-node="5:272000"
                         x-on:click="selectTemplate"
-                        x-bind:aria-pressed="template === 'person-code'"
+                        x-bind:aria-pressed="template === 'cloud-bill'"
                     >
-                        <span class="template-preview template-preview--person-code">
-                            <i></i>
-                            <i></i>
-                        </span>
-                        <span>Person + code</span>
+                        <img class="template-preview" src="/img/youtube-templates/cloud-bill-preview.png" alt="" />
+                        <span>Cloud Bill</span>
                     </button>
                     <button
                         type="button"
-                        data-template="custom-visual"
+                        data-template="cloud-comparison"
+                        data-figma-node="28:220441"
                         x-on:click="selectTemplate"
-                        x-bind:aria-pressed="template === 'custom-visual'"
+                        x-bind:aria-pressed="template === 'cloud-comparison'"
                     >
-                        <span class="template-preview template-preview--custom-visual">
-                            <i></i>
-                            <i></i>
-                        </span>
-                        <span>Custom visual</span>
+                        <img class="template-preview" src="/img/youtube-templates/cloud-comparison-preview.png" alt="" />
+                        <span>Cloud vs Vapor</span>
                     </button>
-                    <button type="button" data-template="text-only" x-on:click="selectTemplate" x-bind:aria-pressed="template === 'text-only'">
-                        <span class="template-preview template-preview--text-only">
-                            <i></i>
-                            <i></i>
-                        </span>
-                        <span>Text only</span>
+                    <button
+                        type="button"
+                        data-template="starter-kits"
+                        data-figma-node="27:217728"
+                        x-on:click="selectTemplate"
+                        x-bind:aria-pressed="template === 'starter-kits'"
+                    >
+                        <img class="template-preview" src="/img/youtube-templates/starter-kits-preview.png" alt="" />
+                        <span>Starter Kits</span>
+                    </button>
+                    <button
+                        type="button"
+                        data-template="cloud-ama"
+                        data-figma-node="27:218797"
+                        x-on:click="selectTemplate"
+                        x-bind:aria-pressed="template === 'cloud-ama'"
+                    >
+                        <img class="template-preview" src="/img/youtube-templates/cloud-ama-preview.png" alt="" />
+                        <span>Cloud AMA</span>
+                    </button>
+                    <button
+                        type="button"
+                        data-template="nightwatch-ama"
+                        data-figma-node="35:244539"
+                        x-on:click="selectTemplate"
+                        x-bind:aria-pressed="template === 'nightwatch-ama'"
+                    >
+                        <img class="template-preview" src="/img/youtube-templates/nightwatch-ama-preview.png" alt="" />
+                        <span>Nightwatch AMA</span>
                     </button>
                 </div>
 
@@ -213,6 +230,45 @@
                     <div class="artboard__flare artboard__flare--one"></div>
                     <div class="artboard__flare artboard__flare--two"></div>
 
+                    <div class="artboard__template-art" x-show="format === 'thumbnail'" aria-hidden="true">
+                        <div class="template-art template-art--whats-new" x-show="template === 'whats-new'">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+
+                        <div class="template-art template-art--cloud-bill" x-show="template === 'cloud-bill'">
+                            <img src="/img/youtube-templates/cloud-bill-product.png" alt="" />
+                        </div>
+
+                        <div class="template-art template-art--cloud-comparison" x-show="template === 'cloud-comparison'">
+                            <img class="comparison-art comparison-art--cloud-mark" src="/img/youtube-templates/comparison-cloud-mark.svg" alt="" />
+                            <img class="comparison-art comparison-art--cloud-ui" src="/img/youtube-templates/comparison-cloud-ui.png" alt="" />
+                            <img class="comparison-art comparison-art--vapor-mark" src="/img/youtube-templates/comparison-vapor-mark.svg" alt="" />
+                            <img class="comparison-art comparison-art--vapor-ui" src="/img/youtube-templates/comparison-vapor-ui.png" alt="" />
+                            <i></i>
+                        </div>
+
+                        <div class="template-art template-art--starter-kits" x-show="template === 'starter-kits'">
+                            <img class="starter-art starter-art--dashboard" src="/img/youtube-templates/starter-dashboard.png" alt="" />
+                            <img class="starter-art starter-art--register" src="/img/youtube-templates/starter-register.png" alt="" />
+                            <img class="starter-art starter-art--cubes" src="/img/youtube-templates/starter-kit-cubes.png" alt="" />
+                        </div>
+
+                        <div class="template-art template-art--cloud-ama" x-show="template === 'cloud-ama'">
+                            <img class="cloud-ama-art cloud-ama-art--background" src="/img/youtube-templates/cloud-ama-background.png" alt="" />
+                            <img class="cloud-ama-art cloud-ama-art--watermark" src="/img/youtube-templates/cloud-ama-watermark.svg" alt="" />
+                        </div>
+
+                        <div class="template-art template-art--nightwatch" x-show="template === 'nightwatch-ama'">
+                            <img class="nightwatch-art nightwatch-art--dashboard" src="/img/youtube-templates/nightwatch-dashboard.png" alt="" />
+                            <img class="nightwatch-art nightwatch-art--gradient" src="/img/youtube-templates/nightwatch-gradient.png" alt="" />
+                        </div>
+                    </div>
+
                     <div class="artboard__safe-areas" x-show="showSafeAreas && format === 'thumbnail'" data-export-ignore aria-hidden="true">
                         <span class="artboard__safe-area artboard__safe-area--mobile">Mobile UI</span>
                         <span class="artboard__safe-area artboard__safe-area--time">Time</span>
@@ -220,12 +276,14 @@
 
                     <div
                         class="artboard__brand"
+                        x-show="brandLogo"
                         data-draggable-logo
                         x-bind:class="{ 'is-dragging': logoDragState }"
                         x-bind:style="logoStyle"
                         x-on:pointerdown.prevent="startLogoDrag"
                     >
                         <img class="artboard__brand-logo" x-bind:src="brandLogo" alt="" draggable="false" />
+                        <span class="artboard__brand-name" x-show="format === 'thumbnail' && template === 'nightwatch-ama'">NIGHTWATCH</span>
                     </div>
 
                     <div
@@ -235,7 +293,18 @@
                         x-bind:style="copyStyle"
                         x-on:pointerdown.prevent="startCopyDrag"
                     >
-                        <h2 x-bind:style="headlineStyle" x-text="title"></h2>
+                        <p class="artboard__eyebrow" x-show="hasEyebrow" x-text="eyebrow"></p>
+                        <span class="artboard__template-word" x-show="format === 'thumbnail' && template === 'starter-kits'">Laravel</span>
+                        <div class="artboard__headline-row">
+                            <p class="artboard__supporting" x-show="hasSupportingText" x-text="supportingText"></p>
+                            <h2 x-bind:style="headlineStyle" x-text="title"></h2>
+                            <img
+                                class="artboard__versus"
+                                x-show="format === 'thumbnail' && template === 'cloud-comparison'"
+                                src="/img/youtube-templates/comparison-vs.svg"
+                                alt="versus"
+                            />
+                        </div>
                     </div>
 
                     <div
@@ -319,7 +388,7 @@
         </main>
 
         <aside class="studio-panel studio-panel--inspector" aria-label="Design controls">
-            <div class="studio-panel__section">
+            <div class="studio-panel__section" x-show="brandLogo">
                 <div class="studio-panel__heading">
                     <span>Logo</span>
                     <span class="studio-panel__meta">Movable layer</span>
@@ -353,12 +422,22 @@
             <div class="studio-panel__section">
                 <div class="studio-panel__heading">
                     <span>Copy</span>
-                    <span class="studio-panel__meta">Instrument Sans</span>
+                    <span class="studio-panel__meta" x-text="copyFontLabel"></span>
                 </div>
+
+                <flux:field x-show="hasEyebrow">
+                    <flux:label>Top line</flux:label>
+                    <flux:textarea x-model="eyebrow" rows="2" maxlength="100" resize="none" />
+                </flux:field>
 
                 <flux:field>
                     <flux:label>Headline</flux:label>
                     <flux:textarea x-model="title" rows="3" maxlength="120" resize="none" />
+                </flux:field>
+
+                <flux:field x-show="hasSupportingText">
+                    <flux:label>Supporting line</flux:label>
+                    <flux:input x-model="supportingText" maxlength="80" />
                 </flux:field>
 
                 <label class="studio-range">
