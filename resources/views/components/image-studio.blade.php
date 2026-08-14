@@ -208,7 +208,6 @@
                         x-on:pointerdown.prevent="startCopyDrag"
                     >
                         <h2 x-bind:style="headlineStyle" x-text="title"></h2>
-                        <span class="artboard__rule"></span>
                     </div>
 
                     <template x-for="imageLayer in placedImages" x-bind:key="imageLayer.id">
