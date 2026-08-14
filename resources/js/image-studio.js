@@ -13,13 +13,40 @@ const formats = {
     },
 };
 
-const templates = ['editorial', 'split', 'stacked', 'lower-third'];
+const thumbnailTemplates = {
+    'person-text': {
+        label: 'Person + text',
+        alignment: 'left',
+        headlineSize: 100,
+        slotLabel: 'Add person',
+    },
+    'person-code': {
+        label: 'Person + code',
+        alignment: 'left',
+        headlineSize: 92,
+        slotLabel: 'Add person, then code',
+    },
+    'custom-visual': {
+        label: 'Custom visual',
+        alignment: 'left',
+        headlineSize: 88,
+        slotLabel: 'Add custom visual',
+    },
+    'text-only': {
+        label: 'Text only',
+        alignment: 'center',
+        headlineSize: 112,
+        slotLabel: null,
+    },
+};
+
+const templates = Object.keys(thumbnailTemplates);
 
 document.addEventListener('alpine:init', () => {
     window.Alpine.data('imageStudio', () => ({
         brand: 'cloud',
         format: 'thumbnail',
-        template: 'editorial',
+        template: 'person-text',
         alignment: 'left',
         title: 'Ship Laravel without\nthe server stress.',
         headlineSize: 100,
@@ -40,6 +67,7 @@ document.addEventListener('alpine:init', () => {
         resizeState: null,
         isExporting: false,
         variationIndex: 0,
+        showSafeAreas: false,
         statusMessage: 'Ready to design.',
 
         get selectedFormat() {
@@ -64,6 +92,14 @@ document.addEventListener('alpine:init', () => {
             }
 
             return this.format === 'og' ? '/img/laravel-logo.png' : '/img/laravel.svg';
+        },
+
+        get activeTemplate() {
+            return thumbnailTemplates[this.template];
+        },
+
+        get templateSlotLabel() {
+            return this.activeTemplate?.slotLabel ?? '';
         },
 
         get artboardClassNames() {
@@ -122,10 +158,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         selectTemplate(event) {
-            this.template = event.currentTarget.dataset.template;
-            this.resetCopyPosition();
-            this.resetLogoLayer();
-            this.statusMessage = `${this.templateLabel(this.template)} layout applied.`;
+            this.applyTemplate(event.currentTarget.dataset.template);
         },
 
         selectAlignment(event) {
@@ -133,17 +166,19 @@ document.addEventListener('alpine:init', () => {
         },
 
         templateLabel(template) {
-            return template
-                .split('-')
-                .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                .join(' ');
+            return thumbnailTemplates[template]?.label ?? template;
         },
 
-        generateVariation() {
-            this.variationIndex += 1;
-            this.template = templates[this.variationIndex % templates.length];
-            this.headlineSize = [100, 92, 112, 86][this.variationIndex % 4];
-            this.alignment = this.template === 'stacked' ? 'center' : this.template === 'split' ? 'right' : 'left';
+        applyTemplate(template, announce = true) {
+            const definition = thumbnailTemplates[template];
+
+            if (!definition) {
+                return;
+            }
+
+            this.template = template;
+            this.alignment = definition.alignment;
+            this.headlineSize = definition.headlineSize;
             this.resetCopyPosition();
             this.resetLogoLayer();
 
@@ -151,29 +186,73 @@ document.addEventListener('alpine:init', () => {
                 const positions = this.imagePositionsForTemplate(index);
                 imageLayer.x = positions.x;
                 imageLayer.y = positions.y;
+                imageLayer.size = positions.size;
                 imageLayer.rotation = positions.rotation;
+                imageLayer.layer = positions.layer;
                 this.refreshImageStyle(imageLayer);
             });
+
+            if (this.selectedImage) {
+                this.loadSelectedImageControls();
+            }
+
+            if (announce) {
+                this.statusMessage = `${definition.label} thumbnail template applied.`;
+            }
+        },
+
+        resetTemplate() {
+            this.applyTemplate(this.template, false);
+            this.statusMessage = `${this.templateLabel(this.template)} template reset to its Figma defaults.`;
+        },
+
+        generateVariation() {
+            this.variationIndex += 1;
+            this.applyTemplate(templates[this.variationIndex % templates.length], false);
 
             this.statusMessage = `${this.templateLabel(this.template)} variation generated.`;
         },
 
         imagePositionsForTemplate(index) {
-            const offset = Math.min(index * 12, 30);
+            const offset = Math.min(index * 10, 24);
 
-            if (this.template === 'split') {
-                return { x: 26 + offset, y: 58, rotation: index % 2 === 0 ? -2 : 2 };
+            if (this.template === 'person-code') {
+                return {
+                    x: index === 0 ? 78 : 54 - offset / 2,
+                    y: index === 0 ? 57 : 72 - offset / 3,
+                    size: index === 0 ? 48 : 42,
+                    rotation: index === 0 ? 0 : -2,
+                    layer: index === 0 ? 'above' : 'behind',
+                };
             }
 
-            if (this.template === 'stacked') {
-                return { x: index % 2 === 0 ? 18 + offset : 82 - offset, y: 64, rotation: index % 2 === 0 ? -3 : 3 };
+            if (this.template === 'custom-visual') {
+                return {
+                    x: index === 0 ? 66 : 30 + offset,
+                    y: index === 0 ? 48 : 66,
+                    size: index === 0 ? 68 : 34,
+                    rotation: index === 0 ? 0 : index % 2 === 0 ? -3 : 3,
+                    layer: 'behind',
+                };
             }
 
-            if (this.template === 'lower-third') {
-                return { x: 67 + offset / 2, y: 52, rotation: index % 2 === 0 ? 1 : -1 };
+            if (this.template === 'text-only') {
+                return {
+                    x: index % 2 === 0 ? 82 - offset : 18 + offset,
+                    y: 70,
+                    size: 34,
+                    rotation: index % 2 === 0 ? 2 : -2,
+                    layer: 'behind',
+                };
             }
 
-            return { x: 74 - offset, y: 58, rotation: index % 2 === 0 ? 2 : -2 };
+            return {
+                x: 78 - offset / 2,
+                y: 58,
+                size: index === 0 ? 52 : 36,
+                rotation: index === 0 ? 0 : index % 2 === 0 ? -2 : 2,
+                layer: index === 0 ? 'above' : 'behind',
+            };
         },
 
         async handleImageUpload(event) {
@@ -254,10 +333,10 @@ document.addEventListener('alpine:init', () => {
                 src: asset.src,
                 x: positions.x,
                 y: positions.y,
-                size: 46,
+                size: positions.size,
                 rotation: positions.rotation,
                 flipped: false,
-                layer: 'behind',
+                layer: positions.layer,
                 style: '',
                 classNames: '',
             };
@@ -618,6 +697,18 @@ document.addEventListener('alpine:init', () => {
             this.refreshImageStyle(this.selectedImage);
         },
 
+        sanitizeExportClone(clone) {
+            if (!(clone instanceof Element)) {
+                return;
+            }
+
+            clone.getAttributeNames().forEach((attributeName) => {
+                if (attributeName.startsWith('x-') || attributeName.startsWith('@') || attributeName.startsWith(':')) {
+                    clone.removeAttribute(attributeName);
+                }
+            });
+        },
+
         async exportPng() {
             const canvas = this.$root.querySelector('[data-image-studio-canvas]');
 
@@ -644,6 +735,7 @@ document.addEventListener('alpine:init', () => {
                         maxHeight: 'none',
                     },
                     backgroundColor: this.format === 'og' ? '#ffffff' : this.brand === 'cloud' ? '#0927c9' : '#f72b1c',
+                    onCloneEachNode: (clone) => this.sanitizeExportClone(clone),
                     filter: (node) => !(node instanceof Element && node.hasAttribute('data-export-ignore')),
                 });
 

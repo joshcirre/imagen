@@ -99,44 +99,69 @@
 
             <div class="studio-panel__section">
                 <div class="studio-panel__heading">
-                    <span>Layout</span>
-                    <span class="studio-panel__meta">4 systems</span>
+                    <span>Template</span>
+                    <span class="studio-panel__meta">Figma</span>
                 </div>
 
-                <div class="template-grid">
-                    <button type="button" data-template="editorial" x-on:click="selectTemplate" x-bind:aria-pressed="template === 'editorial'">
-                        <span class="template-preview template-preview--editorial">
+                <div class="template-grid" x-show="format === 'thumbnail'">
+                    <button
+                        type="button"
+                        data-template="person-text"
+                        x-on:click="selectTemplate"
+                        x-bind:aria-pressed="template === 'person-text'"
+                    >
+                        <span class="template-preview template-preview--person-text">
                             <i></i>
                             <i></i>
                         </span>
-                        <span>Editorial</span>
-                    </button>
-                    <button type="button" data-template="split" x-on:click="selectTemplate" x-bind:aria-pressed="template === 'split'">
-                        <span class="template-preview template-preview--split">
-                            <i></i>
-                            <i></i>
-                        </span>
-                        <span>Split</span>
-                    </button>
-                    <button type="button" data-template="stacked" x-on:click="selectTemplate" x-bind:aria-pressed="template === 'stacked'">
-                        <span class="template-preview template-preview--stacked">
-                            <i></i>
-                            <i></i>
-                        </span>
-                        <span>Stacked</span>
+                        <span>Person + text</span>
                     </button>
                     <button
                         type="button"
-                        data-template="lower-third"
+                        data-template="person-code"
                         x-on:click="selectTemplate"
-                        x-bind:aria-pressed="template === 'lower-third'"
+                        x-bind:aria-pressed="template === 'person-code'"
                     >
-                        <span class="template-preview template-preview--lower">
+                        <span class="template-preview template-preview--person-code">
                             <i></i>
                             <i></i>
                         </span>
-                        <span>Lower third</span>
+                        <span>Person + code</span>
                     </button>
+                    <button
+                        type="button"
+                        data-template="custom-visual"
+                        x-on:click="selectTemplate"
+                        x-bind:aria-pressed="template === 'custom-visual'"
+                    >
+                        <span class="template-preview template-preview--custom-visual">
+                            <i></i>
+                            <i></i>
+                        </span>
+                        <span>Custom visual</span>
+                    </button>
+                    <button type="button" data-template="text-only" x-on:click="selectTemplate" x-bind:aria-pressed="template === 'text-only'">
+                        <span class="template-preview template-preview--text-only">
+                            <i></i>
+                            <i></i>
+                        </span>
+                        <span>Text only</span>
+                    </button>
+                </div>
+
+                <p class="studio-panel__hint" x-show="format === 'og'">Open Graph uses the approved brand-specific composition.</p>
+
+                <div class="template-actions" x-show="format === 'thumbnail'">
+                    <flux:button size="xs" variant="ghost" icon="arrow-path" x-on:click="resetTemplate">Reset template</flux:button>
+                    <flux:button
+                        size="xs"
+                        variant="ghost"
+                        icon="eye"
+                        x-on:click="showSafeAreas = !showSafeAreas"
+                        x-bind:aria-pressed="showSafeAreas"
+                    >
+                        Safe areas
+                    </flux:button>
                 </div>
             </div>
 
@@ -170,10 +195,6 @@
 
         <main class="studio-stage" aria-label="Design canvas">
             <div class="studio-stage__toolbar">
-                <div>
-                    <span class="status-dot"></span>
-                    Live canvas
-                </div>
                 <span x-text="formatDescription"></span>
             </div>
 
@@ -189,6 +210,11 @@
                     <div class="artboard__wash"></div>
                     <div class="artboard__flare artboard__flare--one"></div>
                     <div class="artboard__flare artboard__flare--two"></div>
+
+                    <div class="artboard__safe-areas" x-show="showSafeAreas && format === 'thumbnail'" data-export-ignore aria-hidden="true">
+                        <span class="artboard__safe-area artboard__safe-area--mobile">Mobile UI</span>
+                        <span class="artboard__safe-area artboard__safe-area--time">Time</span>
+                    </div>
 
                     <div
                         class="artboard__brand"
@@ -208,6 +234,15 @@
                         x-on:pointerdown.prevent="startCopyDrag"
                     >
                         <h2 x-bind:style="headlineStyle" x-text="title"></h2>
+                    </div>
+
+                    <div
+                        class="artboard__image-slot"
+                        x-show="placedImages.length === 0 && templateSlotLabel && format === 'thumbnail'"
+                        data-export-ignore
+                    >
+                        <flux:icon.photo />
+                        <span x-text="templateSlotLabel"></span>
                     </div>
 
                     <template x-for="imageLayer in placedImages" x-bind:key="imageLayer.id">
@@ -334,6 +369,7 @@
 
                 <div class="alignment-options" aria-label="Text alignment">
                     <flux:button
+                        class="h-8! w-full! rounded-none!"
                         size="xs"
                         variant="ghost"
                         icon="bars-3-bottom-left"
@@ -343,6 +379,7 @@
                         aria-label="Align left"
                     />
                     <flux:button
+                        class="h-8! w-full! rounded-none!"
                         size="xs"
                         variant="ghost"
                         icon="bars-3"
@@ -352,6 +389,7 @@
                         aria-label="Align center"
                     />
                     <flux:button
+                        class="h-8! w-full! rounded-none!"
                         size="xs"
                         variant="ghost"
                         icon="bars-3-bottom-right"
