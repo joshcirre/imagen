@@ -131,6 +131,12 @@
         text-transform: uppercase;
     }
 
+    .studio-panel__hint {
+        color: #71717a;
+        font-size: 0.65rem;
+        line-height: 1.45;
+    }
+
     .brand-options,
     .format-options {
         display: grid;
@@ -447,9 +453,12 @@
 
     .artboard--cloud {
         --artboard-accent: #73dcff;
-        background:
-            radial-gradient(circle at 86% 2%, rgb(53 191 255 / 68%), transparent 27%),
-            radial-gradient(circle at 18% 102%, rgb(50 76 255 / 90%), transparent 38%), linear-gradient(135deg, #071a8f, #103de4 58%, #0927b5);
+        background: #05052d url('/img/laravel-cloud-background.png') center / cover no-repeat;
+    }
+
+    .artboard--cloud.artboard--og {
+        --artboard-ink: #080c10;
+        background: white url('/img/laravel-cloud-og-background.png') center / cover no-repeat;
     }
 
     .artboard--laravel {
@@ -457,6 +466,11 @@
         background:
             radial-gradient(circle at 90% 0%, rgb(255 155 95 / 62%), transparent 28%),
             radial-gradient(circle at 8% 94%, rgb(139 0 0 / 50%), transparent 34%), linear-gradient(135deg, #c9180f, #ff3927 58%, #d51611);
+    }
+
+    .artboard--laravel.artboard--og {
+        --artboard-ink: #101010;
+        background: white url('/img/laravel-og-background.png') center / cover no-repeat;
     }
 
     .artboard::before {
@@ -488,6 +502,15 @@
             0 0 0 3.4cqw rgb(255 255 255 / 5%),
             0 0 0 8cqw rgb(255 255 255 / 4%);
         content: '';
+    }
+
+    .artboard--cloud:not(.artboard--custom-background)::before,
+    .artboard--cloud:not(.artboard--custom-background)::after,
+    .artboard--cloud:not(.artboard--custom-background) .artboard__flare,
+    .artboard--laravel.artboard--og:not(.artboard--custom-background)::before,
+    .artboard--laravel.artboard--og:not(.artboard--custom-background)::after,
+    .artboard--laravel.artboard--og:not(.artboard--custom-background) .artboard__flare {
+        display: none;
     }
 
     .artboard__custom-background {
@@ -544,12 +567,34 @@
         z-index: 10;
         top: 7.5%;
         left: 5.7%;
+        cursor: grab;
+        touch-action: none;
+        transform: scale(var(--logo-scale, 1));
+        transform-origin: top left;
+    }
+
+    .artboard__brand.is-dragging {
+        cursor: grabbing;
     }
 
     .artboard__brand-logo {
+        display: block;
         width: 4.2cqw;
         max-height: 4.2cqw;
         filter: brightness(0) invert(1);
+        pointer-events: none;
+        user-select: none;
+    }
+
+    .artboard--cloud .artboard__brand {
+        top: 10.7%;
+        left: 5.47%;
+    }
+
+    .artboard--cloud .artboard__brand-logo {
+        width: 27.344cqw;
+        max-height: none;
+        filter: none;
     }
 
     .artboard--laravel .artboard__brand-logo {
@@ -640,7 +685,70 @@
         font-size: calc(5.9cqw * var(--headline-scale, 1));
     }
 
-    .artboard-person {
+    .artboard--cloud.artboard--og .artboard__brand {
+        top: 8.1%;
+        left: 8.17%;
+    }
+
+    .artboard--cloud.artboard--og .artboard__brand-logo {
+        width: 27cqw;
+        filter: brightness(0);
+    }
+
+    .artboard--cloud.artboard--og .artboard__copy {
+        top: 58.4%;
+        right: auto;
+        bottom: auto;
+        left: 8.17%;
+        width: 78%;
+        text-align: left !important;
+    }
+
+    .artboard--cloud.artboard--og .artboard__copy h2 {
+        font-size: calc(5.33cqw * var(--headline-scale, 1));
+        font-weight: 400;
+        line-height: 1.18;
+        letter-spacing: -0.04em;
+        text-shadow: none;
+    }
+
+    .artboard--cloud.artboard--og .artboard__rule {
+        display: none;
+    }
+
+    .artboard--laravel.artboard--og .artboard__brand {
+        top: 12.7%;
+        left: 6.67%;
+    }
+
+    .artboard--laravel.artboard--og .artboard__brand-logo {
+        width: 15.34cqw;
+        max-height: none;
+        filter: none;
+    }
+
+    .artboard--laravel.artboard--og .artboard__copy {
+        top: 62.5%;
+        right: auto;
+        bottom: auto;
+        left: 6.67%;
+        width: 49%;
+        text-align: left !important;
+    }
+
+    .artboard--laravel.artboard--og .artboard__copy h2 {
+        font-size: calc(5.6cqw * var(--headline-scale, 1));
+        font-weight: 400;
+        line-height: 1.2;
+        letter-spacing: -0.04em;
+        text-shadow: none;
+    }
+
+    .artboard--laravel.artboard--og .artboard__rule {
+        display: none;
+    }
+
+    .artboard-image {
         position: absolute;
         z-index: 6;
         cursor: grab;
@@ -649,21 +757,21 @@
         filter: drop-shadow(0 2.2cqw 1.7cqw rgb(0 0 0 / 24%));
     }
 
-    .artboard-person.is-above-text {
+    .artboard-image.is-above-text {
         z-index: 9;
     }
 
-    .artboard-person:active {
+    .artboard-image:active {
         cursor: grabbing;
     }
 
-    .artboard-person img {
+    .artboard-image img {
         width: 100%;
         max-width: none;
         pointer-events: none;
     }
 
-    .artboard-person.is-selected::after {
+    .artboard-image.is-selected::after {
         position: absolute;
         inset: -0.45cqw;
         border: 0.16cqw solid white;
@@ -672,7 +780,7 @@
         pointer-events: none;
     }
 
-    .artboard-person__handle {
+    .artboard-image__handle {
         position: absolute;
         z-index: 2;
         width: 2cqw;
@@ -684,46 +792,46 @@
         touch-action: none;
     }
 
-    .artboard-person__handle--top-left {
+    .artboard-image__handle--top-left {
         top: -1cqw;
         left: -1cqw;
         cursor: nwse-resize;
     }
 
-    .artboard-person__handle--top-right {
+    .artboard-image__handle--top-right {
         top: -1cqw;
         right: -1cqw;
         cursor: nesw-resize;
     }
 
-    .artboard-person__handle--middle-left {
+    .artboard-image__handle--middle-left {
         top: 50%;
         left: -1cqw;
         cursor: ew-resize;
         transform: translateY(-50%);
     }
 
-    .artboard-person__handle--middle-right {
+    .artboard-image__handle--middle-right {
         top: 50%;
         right: -1cqw;
         cursor: ew-resize;
         transform: translateY(-50%);
     }
 
-    .artboard-person__handle--bottom-left {
+    .artboard-image__handle--bottom-left {
         bottom: -1cqw;
         left: -1cqw;
         cursor: nesw-resize;
     }
 
-    .artboard-person__handle--bottom-right {
+    .artboard-image__handle--bottom-right {
         right: -1cqw;
         bottom: -1cqw;
         cursor: nwse-resize;
     }
 
-    .artboard.is-exporting .artboard-person::after,
-    .artboard.is-exporting .artboard-person__handle {
+    .artboard.is-exporting .artboard-image::after,
+    .artboard.is-exporting .artboard-image__handle {
         display: none;
     }
 
@@ -780,7 +888,7 @@
         width: 0.95rem;
     }
 
-    .people-empty {
+    .image-empty {
         display: grid;
         gap: 0.55rem;
         justify-items: center;
@@ -791,29 +899,29 @@
         text-align: center;
     }
 
-    .people-empty__faces {
+    .image-empty__preview {
         display: flex;
         padding-left: 0.6rem;
     }
 
-    .people-empty__faces i {
+    .image-empty__preview i {
         width: 1.65rem;
         aspect-ratio: 1;
         margin-left: -0.6rem;
         border: 2px solid #fafafa;
-        border-radius: 999px;
+        border-radius: 0.4rem;
         background:
-            radial-gradient(circle at 50% 38%, #a1a1aa 0 20%, transparent 21%), radial-gradient(ellipse at 50% 100%, #a1a1aa 0 38%, transparent 39%),
-            #e4e4e7;
+            linear-gradient(145deg, transparent 52%, #a1a1aa 53% 68%, transparent 69%),
+            linear-gradient(35deg, transparent 47%, #d4d4d8 48% 68%, transparent 69%), #e4e4e7;
     }
 
-    .people-library {
+    .image-library {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 0.45rem;
     }
 
-    .people-library button {
+    .image-library button {
         position: relative;
         display: grid;
         min-width: 0;
@@ -821,7 +929,7 @@
         text-align: center;
     }
 
-    .people-library img {
+    .image-library img {
         width: 100%;
         aspect-ratio: 1;
         border: 1px solid #e4e4e7;
@@ -836,7 +944,7 @@
         background-size: 10px 10px;
     }
 
-    .people-library span {
+    .image-library span {
         overflow: hidden;
         color: #71717a;
         font-size: 0.57rem;
@@ -844,7 +952,7 @@
         white-space: nowrap;
     }
 
-    .people-library i {
+    .image-library i {
         position: absolute;
         top: 0.25rem;
         right: 0.25rem;
@@ -859,11 +967,11 @@
         transition: 120ms ease;
     }
 
-    .people-library button:hover i {
+    .image-library button:hover i {
         opacity: 1;
     }
 
-    .people-library i svg {
+    .image-library i svg {
         width: 0.65rem;
     }
 

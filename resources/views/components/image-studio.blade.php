@@ -10,7 +10,7 @@
         <div>
             <p class="studio-kicker">Image studio</p>
             <h1>Create share-ready graphics.</h1>
-            <p>Brand-safe backgrounds, flexible people cutouts, and fast layout variations.</p>
+            <p>Brand-safe templates, flexible image layers, and fast layout variations.</p>
         </div>
 
         <div class="studio-actions">
@@ -46,7 +46,7 @@
                         x-bind:aria-pressed="brand === 'cloud'"
                     >
                         <span class="brand-option__preview">
-                            <img src="/img/laravel-cloud.svg" alt="" />
+                            <img src="/img/laravel-cloud-logo.png" alt="" />
                         </span>
                         <span>
                             <strong>Laravel Cloud</strong>
@@ -63,7 +63,7 @@
                         x-bind:aria-pressed="brand === 'laravel'"
                     >
                         <span class="brand-option__preview">
-                            <img src="/img/laravel.svg" alt="" />
+                            <img src="/img/laravel-logo.png" alt="" />
                         </span>
                         <span>
                             <strong>Laravel</strong>
@@ -183,15 +183,21 @@
                     data-image-studio-canvas
                     x-bind:class="artboardClassNames"
                     x-bind:style="artboardStyle"
-                    x-on:pointerdown.self="deselectPerson"
+                    x-on:pointerdown.self="deselectImage"
                 >
                     <img class="artboard__custom-background" x-show="backgroundImage" x-bind:src="backgroundImage" alt="" />
                     <div class="artboard__wash"></div>
                     <div class="artboard__flare artboard__flare--one"></div>
                     <div class="artboard__flare artboard__flare--two"></div>
 
-                    <div class="artboard__brand">
-                        <img class="artboard__brand-logo" x-bind:src="brandLogo" alt="" />
+                    <div
+                        class="artboard__brand"
+                        data-draggable-logo
+                        x-bind:class="{ 'is-dragging': logoDragState }"
+                        x-bind:style="logoStyle"
+                        x-on:pointerdown.prevent="startLogoDrag"
+                    >
+                        <img class="artboard__brand-logo" x-bind:src="brandLogo" alt="" draggable="false" />
                     </div>
 
                     <div
@@ -205,64 +211,64 @@
                         <span class="artboard__rule"></span>
                     </div>
 
-                    <template x-for="person in placedPeople" x-bind:key="person.id">
+                    <template x-for="imageLayer in placedImages" x-bind:key="imageLayer.id">
                         <button
-                            class="artboard-person"
+                            class="artboard-image"
                             type="button"
-                            x-bind:class="person.classNames"
-                            x-bind:style="person.style"
-                            x-bind:data-layer-id="person.id"
-                            x-on:pointerdown="startPersonDrag"
-                            x-on:click="selectPerson"
-                            x-bind:aria-label="`Move ${person.name}`"
+                            x-bind:class="imageLayer.classNames"
+                            x-bind:style="imageLayer.style"
+                            x-bind:data-layer-id="imageLayer.id"
+                            x-on:pointerdown="startImageDrag"
+                            x-on:click="selectImage"
+                            x-bind:aria-label="`Move ${imageLayer.name}`"
                         >
-                            <img x-bind:src="person.src" x-bind:alt="person.name" draggable="false" />
+                            <img x-bind:src="imageLayer.src" x-bind:alt="imageLayer.name" draggable="false" />
                             <span
-                                class="artboard-person__handle artboard-person__handle--top-left"
+                                class="artboard-image__handle artboard-image__handle--top-left"
                                 data-resize-handle="top-left"
                                 data-export-ignore
                                 aria-hidden="true"
-                                x-on:pointerdown.stop.prevent="startPersonResize"
+                                x-on:pointerdown.stop.prevent="startImageResize"
                                 x-on:click.stop
                             ></span>
                             <span
-                                class="artboard-person__handle artboard-person__handle--top-right"
+                                class="artboard-image__handle artboard-image__handle--top-right"
                                 data-resize-handle="top-right"
                                 data-export-ignore
                                 aria-hidden="true"
-                                x-on:pointerdown.stop.prevent="startPersonResize"
+                                x-on:pointerdown.stop.prevent="startImageResize"
                                 x-on:click.stop
                             ></span>
                             <span
-                                class="artboard-person__handle artboard-person__handle--middle-left"
+                                class="artboard-image__handle artboard-image__handle--middle-left"
                                 data-resize-handle="middle-left"
                                 data-export-ignore
                                 aria-hidden="true"
-                                x-on:pointerdown.stop.prevent="startPersonResize"
+                                x-on:pointerdown.stop.prevent="startImageResize"
                                 x-on:click.stop
                             ></span>
                             <span
-                                class="artboard-person__handle artboard-person__handle--middle-right"
+                                class="artboard-image__handle artboard-image__handle--middle-right"
                                 data-resize-handle="middle-right"
                                 data-export-ignore
                                 aria-hidden="true"
-                                x-on:pointerdown.stop.prevent="startPersonResize"
+                                x-on:pointerdown.stop.prevent="startImageResize"
                                 x-on:click.stop
                             ></span>
                             <span
-                                class="artboard-person__handle artboard-person__handle--bottom-left"
+                                class="artboard-image__handle artboard-image__handle--bottom-left"
                                 data-resize-handle="bottom-left"
                                 data-export-ignore
                                 aria-hidden="true"
-                                x-on:pointerdown.stop.prevent="startPersonResize"
+                                x-on:pointerdown.stop.prevent="startImageResize"
                                 x-on:click.stop
                             ></span>
                             <span
-                                class="artboard-person__handle artboard-person__handle--bottom-right"
+                                class="artboard-image__handle artboard-image__handle--bottom-right"
                                 data-resize-handle="bottom-right"
                                 data-export-ignore
                                 aria-hidden="true"
-                                x-on:pointerdown.stop.prevent="startPersonResize"
+                                x-on:pointerdown.stop.prevent="startImageResize"
                                 x-on:click.stop
                             ></span>
                         </button>
@@ -272,11 +278,42 @@
 
             <div class="studio-stage__footer">
                 <span x-text="statusMessage"></span>
-                <span>Drag people or the headline to move · pull any visible handle to resize.</span>
+                <span>Drag images, the logo, or the headline to move · pull image handles to resize.</span>
             </div>
         </main>
 
         <aside class="studio-panel studio-panel--inspector" aria-label="Design controls">
+            <div class="studio-panel__section">
+                <div class="studio-panel__heading">
+                    <span>Logo</span>
+                    <span class="studio-panel__meta">Movable layer</span>
+                </div>
+
+                <p class="studio-panel__hint">Drag the logo directly on the canvas.</p>
+
+                <div class="studio-range">
+                    <span>
+                        <strong>Scale</strong>
+                        <output x-text="`${logoScale}%`"></output>
+                    </span>
+                    <flux:slider min="50" max="180" step="1" big-step="10" aria-label="Logo scale" x-model.number="logoScale" />
+                </div>
+
+                <flux:button
+                    size="xs"
+                    variant="ghost"
+                    icon="arrow-path"
+                    class="justify-self-start"
+                    x-show="logoX !== null || logoScale !== 100"
+                    x-on:click="
+                        resetLogoLayer()
+                        statusMessage = 'Logo position and scale reset.'
+                    "
+                >
+                    Reset logo
+                </flux:button>
+            </div>
+
             <div class="studio-panel__section">
                 <div class="studio-panel__heading">
                     <span>Copy</span>
@@ -343,55 +380,55 @@
 
             <div class="studio-panel__section">
                 <div class="studio-panel__heading">
-                    <span>People</span>
-                    <span class="studio-panel__meta" x-text="`${peopleLibrary.length} approved`"></span>
+                    <span>Images</span>
+                    <span class="studio-panel__meta" x-text="`${imageLibrary.length} approved`"></span>
                 </div>
 
                 <flux:file-upload
                     class="studio-file-upload"
-                    data-upload-dropzone="people"
-                    accept="image/png"
+                    data-upload-dropzone="images"
+                    accept="image/png,image/jpeg,image/webp"
                     multiple
-                    x-on:change="handlePeopleUpload"
+                    x-on:change="handleImageUpload"
                 >
-                    <flux:file-upload.dropzone inline icon="user-plus" heading="Drop people PNGs" text="Transparent cutouts · 10 MB max" />
+                    <flux:file-upload.dropzone inline icon="photo" heading="Drop image layers" text="PNG, JPG, or WebP · 15 MB max" />
                 </flux:file-upload>
 
-                <div class="people-empty" x-show="peopleLibrary.length === 0">
-                    <div class="people-empty__faces">
+                <div class="image-empty" x-show="imageLibrary.length === 0">
+                    <div class="image-empty__preview">
                         <i></i>
                         <i></i>
                         <i></i>
                     </div>
-                    <p>Your approved faces will stay in this session tray.</p>
+                    <p>Add people, product shots, screenshots, or any other image.</p>
                 </div>
 
-                <div class="people-library" x-show="peopleLibrary.length > 0">
-                    <template x-for="person in peopleLibrary" x-bind:key="person.id">
+                <div class="image-library" x-show="imageLibrary.length > 0">
+                    <template x-for="imageLayer in imageLibrary" x-bind:key="imageLayer.id">
                         <button
                             type="button"
-                            x-bind:data-person-id="person.id"
-                            x-on:click="addPerson"
-                            x-bind:aria-label="`Add ${person.name} to canvas`"
+                            x-bind:data-image-id="imageLayer.id"
+                            x-on:click="addImage"
+                            x-bind:aria-label="`Add ${imageLayer.name} to canvas`"
                         >
-                            <img x-bind:src="person.src" x-bind:alt="person.name" />
-                            <span x-text="person.name"></span>
+                            <img x-bind:src="imageLayer.src" x-bind:alt="imageLayer.name" />
+                            <span x-text="imageLayer.name"></span>
                             <i><flux:icon.plus /></i>
                         </button>
                     </template>
                 </div>
             </div>
 
-            <div class="studio-panel__section" x-show="selectedPerson">
+            <div class="studio-panel__section" x-show="selectedImage">
                 <div class="studio-panel__heading">
-                    <span>Selected person</span>
-                    <span class="studio-panel__meta" x-text="selectedPerson?.name"></span>
+                    <span>Selected image</span>
+                    <span class="studio-panel__meta" x-text="selectedImage?.name"></span>
                 </div>
 
                 <div class="studio-range">
                     <span>
                         <strong>Scale</strong>
-                        <output x-text="`${Math.round(selectedPersonSize)}%`"></output>
+                        <output x-text="`${Math.round(selectedImageSize)}%`"></output>
                     </span>
                     <flux:slider
                         min="16"
@@ -399,15 +436,15 @@
                         step="1"
                         big-step="10"
                         aria-label="Image scale"
-                        x-model.number="selectedPersonSize"
-                        x-on:input="syncSelectedPerson"
+                        x-model.number="selectedImageSize"
+                        x-on:input="syncSelectedImage"
                     />
                 </div>
 
                 <div class="studio-range">
                     <span>
                         <strong>Rotation</strong>
-                        <output x-text="`${selectedPersonRotation}°`"></output>
+                        <output x-text="`${selectedImageRotation}°`"></output>
                     </span>
                     <flux:slider
                         min="-15"
@@ -415,8 +452,8 @@
                         step="1"
                         big-step="5"
                         aria-label="Image rotation"
-                        x-model.number="selectedPersonRotation"
-                        x-on:input="syncSelectedPerson"
+                        x-model.number="selectedImageRotation"
+                        x-on:input="syncSelectedImage"
                     />
                 </div>
 
@@ -426,18 +463,18 @@
                         <flux:button
                             size="xs"
                             icon="arrow-down"
-                            data-person-layer="behind"
-                            x-on:click="setSelectedPersonLayer"
-                            x-bind:aria-pressed="selectedPerson?.layer !== 'above'"
+                            data-image-layer="behind"
+                            x-on:click="setSelectedImageLayer"
+                            x-bind:aria-pressed="selectedImage?.layer !== 'above'"
                         >
                             Behind text
                         </flux:button>
                         <flux:button
                             size="xs"
                             icon="arrow-up"
-                            data-person-layer="above"
-                            x-on:click="setSelectedPersonLayer"
-                            x-bind:aria-pressed="selectedPerson?.layer === 'above'"
+                            data-image-layer="above"
+                            x-on:click="setSelectedImageLayer"
+                            x-bind:aria-pressed="selectedImage?.layer === 'above'"
                         >
                             Above text
                         </flux:button>
@@ -445,29 +482,29 @@
                 </div>
 
                 <div class="layer-actions">
-                    <flux:button size="xs" icon="arrows-right-left" x-on:click="flipSelectedPerson">Flip</flux:button>
+                    <flux:button size="xs" icon="arrows-right-left" x-on:click="flipSelectedImage">Flip</flux:button>
                     <flux:button size="xs" icon="arrow-down" x-on:click="sendSelectedBackward">Back</flux:button>
                     <flux:button size="xs" icon="arrow-up" x-on:click="bringSelectedForward">Front</flux:button>
-                    <flux:button size="xs" variant="danger" icon="trash" x-on:click="removeSelectedPerson">Remove</flux:button>
+                    <flux:button size="xs" variant="danger" icon="trash" x-on:click="removeSelectedImage">Remove</flux:button>
                 </div>
             </div>
 
-            <div class="studio-panel__section" x-show="placedPeople.length > 0">
+            <div class="studio-panel__section" x-show="placedImages.length > 0">
                 <div class="studio-panel__heading">
                     <span>Layers</span>
-                    <flux:button size="xs" variant="ghost" class="text-red-600!" x-on:click="clearPeople">Clear</flux:button>
+                    <flux:button size="xs" variant="ghost" class="text-red-600!" x-on:click="clearImages">Clear</flux:button>
                 </div>
 
                 <div class="layer-list">
-                    <template x-for="person in reversedPlacedPeople" x-bind:key="person.id">
+                    <template x-for="imageLayer in reversedPlacedImages" x-bind:key="imageLayer.id">
                         <button
                             type="button"
-                            x-bind:data-layer-id="person.id"
-                            x-on:click="selectPerson"
-                            x-bind:aria-pressed="selectedPersonId === person.id"
+                            x-bind:data-layer-id="imageLayer.id"
+                            x-on:click="selectImage"
+                            x-bind:aria-pressed="selectedImageId === imageLayer.id"
                         >
-                            <img x-bind:src="person.src" alt="" />
-                            <span x-text="person.name"></span>
+                            <img x-bind:src="imageLayer.src" alt="" />
+                            <span x-text="imageLayer.name"></span>
                             <flux:icon.bars-2 />
                         </button>
                     </template>

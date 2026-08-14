@@ -24,14 +24,18 @@ document.addEventListener('alpine:init', () => {
         title: 'Ship Laravel without\nthe server stress.',
         headlineSize: 100,
         backgroundImage: null,
-        peopleLibrary: [],
-        placedPeople: [],
-        selectedPersonId: null,
-        selectedPersonSize: 46,
-        selectedPersonRotation: 0,
+        imageLibrary: [],
+        placedImages: [],
+        selectedImageId: null,
+        selectedImageSize: 46,
+        selectedImageRotation: 0,
         copyX: null,
         copyY: null,
         copyDragState: null,
+        logoX: null,
+        logoY: null,
+        logoScale: 100,
+        logoDragState: null,
         dragState: null,
         resizeState: null,
         isExporting: false,
@@ -55,7 +59,11 @@ document.addEventListener('alpine:init', () => {
         },
 
         get brandLogo() {
-            return this.brand === 'cloud' ? '/img/laravel-cloud.svg' : '/img/laravel.svg';
+            if (this.brand === 'cloud') {
+                return '/img/laravel-cloud-logo.png';
+            }
+
+            return this.format === 'og' ? '/img/laravel-logo.png' : '/img/laravel.svg';
         },
 
         get artboardClassNames() {
@@ -85,27 +93,38 @@ document.addEventListener('alpine:init', () => {
             return `--headline-scale: ${this.headlineSize / 100};`;
         },
 
-        get selectedPerson() {
-            return this.placedPeople.find((person) => person.id === this.selectedPersonId) ?? null;
+        get logoStyle() {
+            const position =
+                this.logoX === null || this.logoY === null ? '' : `left: ${this.logoX}%; top: ${this.logoY}%; right: auto; bottom: auto;`;
+
+            return `${position} --logo-scale: ${this.logoScale / 100};`;
         },
 
-        get reversedPlacedPeople() {
-            return [...this.placedPeople].reverse();
+        get selectedImage() {
+            return this.placedImages.find((imageLayer) => imageLayer.id === this.selectedImageId) ?? null;
+        },
+
+        get reversedPlacedImages() {
+            return [...this.placedImages].reverse();
         },
 
         selectBrand(event) {
             this.brand = event.currentTarget.dataset.brand;
+            this.resetLogoLayer();
             this.statusMessage = `${this.brandName} brand system applied.`;
         },
 
         selectFormat(event) {
             this.format = event.currentTarget.dataset.format;
+            this.resetCopyPosition();
+            this.resetLogoLayer();
             this.statusMessage = `${this.selectedFormat.label} canvas ready.`;
         },
 
         selectTemplate(event) {
             this.template = event.currentTarget.dataset.template;
             this.resetCopyPosition();
+            this.resetLogoLayer();
             this.statusMessage = `${this.templateLabel(this.template)} layout applied.`;
         },
 
@@ -126,19 +145,20 @@ document.addEventListener('alpine:init', () => {
             this.headlineSize = [100, 92, 112, 86][this.variationIndex % 4];
             this.alignment = this.template === 'stacked' ? 'center' : this.template === 'split' ? 'right' : 'left';
             this.resetCopyPosition();
+            this.resetLogoLayer();
 
-            this.placedPeople.forEach((person, index) => {
-                const positions = this.personPositionsForTemplate(index);
-                person.x = positions.x;
-                person.y = positions.y;
-                person.rotation = positions.rotation;
-                this.refreshPersonStyle(person);
+            this.placedImages.forEach((imageLayer, index) => {
+                const positions = this.imagePositionsForTemplate(index);
+                imageLayer.x = positions.x;
+                imageLayer.y = positions.y;
+                imageLayer.rotation = positions.rotation;
+                this.refreshImageStyle(imageLayer);
             });
 
             this.statusMessage = `${this.templateLabel(this.template)} variation generated.`;
         },
 
-        personPositionsForTemplate(index) {
+        imagePositionsForTemplate(index) {
             const offset = Math.min(index * 12, 30);
 
             if (this.template === 'split') {
@@ -156,13 +176,13 @@ document.addEventListener('alpine:init', () => {
             return { x: 74 - offset, y: 58, rotation: index % 2 === 0 ? 2 : -2 };
         },
 
-        async handlePeopleUpload(event) {
+        async handleImageUpload(event) {
             const upload = event.currentTarget;
             const files = this.filesFromUpload(upload);
-            const validFiles = files.filter((file) => file.type === 'image/png' && file.size <= 10 * 1024 * 1024);
+            const validFiles = files.filter((file) => ['image/png', 'image/jpeg', 'image/webp'].includes(file.type) && file.size <= 15 * 1024 * 1024);
 
             if (validFiles.length === 0) {
-                this.statusMessage = 'Choose transparent PNG files under 10 MB.';
+                this.statusMessage = 'Choose PNG, JPG, or WebP image layers under 15 MB.';
                 this.resetFileInput(upload);
                 return;
             }
@@ -170,13 +190,13 @@ document.addEventListener('alpine:init', () => {
             const assets = await Promise.all(
                 validFiles.map(async (file) => ({
                     id: window.crypto.randomUUID(),
-                    name: file.name.replace(/\.png$/i, ''),
+                    name: file.name.replace(/\.(png|jpe?g|webp)$/i, ''),
                     src: await this.readFile(file),
                 }))
             );
 
-            this.peopleLibrary.push(...assets);
-            this.statusMessage = `${assets.length} approved ${assets.length === 1 ? 'person' : 'people'} added to the session tray.`;
+            this.imageLibrary.push(...assets);
+            this.statusMessage = `${assets.length} ${assets.length === 1 ? 'image' : 'images'} added to the session tray.`;
             this.resetFileInput(upload);
         },
 
@@ -219,15 +239,15 @@ document.addEventListener('alpine:init', () => {
             });
         },
 
-        addPerson(event) {
-            const asset = this.peopleLibrary.find((person) => person.id === event.currentTarget.dataset.personId);
+        addImage(event) {
+            const asset = this.imageLibrary.find((imageLayer) => imageLayer.id === event.currentTarget.dataset.imageId);
 
             if (!asset) {
                 return;
             }
 
-            const positions = this.personPositionsForTemplate(this.placedPeople.length);
-            const person = {
+            const positions = this.imagePositionsForTemplate(this.placedImages.length);
+            const imageLayer = {
                 id: window.crypto.randomUUID(),
                 assetId: asset.id,
                 name: asset.name,
@@ -242,33 +262,37 @@ document.addEventListener('alpine:init', () => {
                 classNames: '',
             };
 
-            this.placedPeople.push(person);
-            this.selectedPersonId = person.id;
-            this.loadSelectedPersonControls();
-            this.refreshPeopleStyles();
-            this.statusMessage = `${person.name} added to the canvas.`;
+            this.placedImages.push(imageLayer);
+            this.selectedImageId = imageLayer.id;
+            this.loadSelectedImageControls();
+            this.refreshImageStyles();
+            this.statusMessage = `${imageLayer.name} added to the canvas.`;
         },
 
-        selectPerson(event) {
-            this.selectedPersonId = event.currentTarget.dataset.layerId;
-            this.loadSelectedPersonControls();
-            this.refreshPeopleStyles();
+        selectImage(event) {
+            this.selectedImageId = event.currentTarget.dataset.layerId;
+            this.loadSelectedImageControls();
+            this.copyDragState = null;
+            this.logoDragState = null;
+            this.refreshImageStyles();
         },
 
-        deselectPerson() {
-            this.selectedPersonId = null;
-            this.refreshPeopleStyles();
+        deselectImage() {
+            this.selectedImageId = null;
+            this.refreshImageStyles();
         },
 
-        startPersonDrag(event) {
+        startImageDrag(event) {
             event.preventDefault();
-            this.selectedPersonId = event.currentTarget.dataset.layerId;
-            this.loadSelectedPersonControls();
+            this.selectedImageId = event.currentTarget.dataset.layerId;
+            this.loadSelectedImageControls();
+            this.copyDragState = null;
+            this.logoDragState = null;
 
             const canvas = this.$root.querySelector('[data-image-studio-canvas]');
-            const person = this.selectedPerson;
+            const imageLayer = this.selectedImage;
 
-            if (!canvas || !person) {
+            if (!canvas || !imageLayer) {
                 return;
             }
 
@@ -276,34 +300,34 @@ document.addEventListener('alpine:init', () => {
                 pointerId: event.pointerId,
                 startClientX: event.clientX,
                 startClientY: event.clientY,
-                startX: person.x,
-                startY: person.y,
+                startX: imageLayer.x,
+                startY: imageLayer.y,
                 canvasRect: canvas.getBoundingClientRect(),
             };
 
-            this.refreshPeopleStyles();
+            this.refreshImageStyles();
         },
 
-        startPersonResize(event) {
-            const personElement = event.currentTarget.closest('[data-layer-id]');
+        startImageResize(event) {
+            const imageElement = event.currentTarget.closest('[data-layer-id]');
             const canvas = this.$root.querySelector('[data-image-studio-canvas]');
 
-            if (!personElement || !canvas) {
+            if (!imageElement || !canvas) {
                 return;
             }
 
-            this.selectedPersonId = personElement.dataset.layerId;
-            this.loadSelectedPersonControls();
+            this.selectedImageId = imageElement.dataset.layerId;
+            this.loadSelectedImageControls();
 
-            const person = this.selectedPerson;
+            const imageLayer = this.selectedImage;
 
-            if (!person) {
+            if (!imageLayer) {
                 return;
             }
 
             const canvasRect = canvas.getBoundingClientRect();
-            const centerClientX = canvasRect.left + (person.x / 100) * canvasRect.width;
-            const centerClientY = canvasRect.top + (person.y / 100) * canvasRect.height;
+            const centerClientX = canvasRect.left + (imageLayer.x / 100) * canvasRect.width;
+            const centerClientY = canvasRect.top + (imageLayer.y / 100) * canvasRect.height;
             const startDistance = Math.hypot(event.clientX - centerClientX, event.clientY - centerClientY);
 
             if (startDistance < 1) {
@@ -312,14 +336,16 @@ document.addEventListener('alpine:init', () => {
 
             event.currentTarget.setPointerCapture?.(event.pointerId);
             this.dragState = null;
+            this.copyDragState = null;
+            this.logoDragState = null;
             this.resizeState = {
                 pointerId: event.pointerId,
-                startSize: person.size,
+                startSize: imageLayer.size,
                 centerClientX,
                 centerClientY,
                 startDistance,
             };
-            this.refreshPeopleStyles();
+            this.refreshImageStyles();
         },
 
         startCopyDrag(event) {
@@ -338,9 +364,10 @@ document.addEventListener('alpine:init', () => {
             const height = (copyRect.height / canvasRect.height) * 100;
 
             copy.setPointerCapture?.(event.pointerId);
-            this.selectedPersonId = null;
+            this.selectedImageId = null;
             this.dragState = null;
             this.resizeState = null;
+            this.logoDragState = null;
             this.copyX = startX;
             this.copyY = startY;
             this.copyDragState = {
@@ -355,10 +382,57 @@ document.addEventListener('alpine:init', () => {
                 maxY: Math.max(-10, 110 - height),
                 canvasRect,
             };
-            this.refreshPeopleStyles();
+            this.refreshImageStyles();
+        },
+
+        startLogoDrag(event) {
+            const canvas = this.$root.querySelector('[data-image-studio-canvas]');
+            const logo = event.currentTarget;
+
+            if (!canvas) {
+                return;
+            }
+
+            const canvasRect = canvas.getBoundingClientRect();
+            const logoRect = logo.getBoundingClientRect();
+            const startX = ((logoRect.left - canvasRect.left) / canvasRect.width) * 100;
+            const startY = ((logoRect.top - canvasRect.top) / canvasRect.height) * 100;
+            const width = (logoRect.width / canvasRect.width) * 100;
+            const height = (logoRect.height / canvasRect.height) * 100;
+
+            logo.setPointerCapture?.(event.pointerId);
+            this.selectedImageId = null;
+            this.dragState = null;
+            this.resizeState = null;
+            this.copyDragState = null;
+            this.logoX = startX;
+            this.logoY = startY;
+            this.logoDragState = {
+                pointerId: event.pointerId,
+                startClientX: event.clientX,
+                startClientY: event.clientY,
+                startX,
+                startY,
+                minX: -10,
+                maxX: Math.max(-10, 110 - width),
+                minY: -10,
+                maxY: Math.max(-10, 110 - height),
+                canvasRect,
+            };
+            this.refreshImageStyles();
         },
 
         movePointer(event) {
+            if (this.logoDragState && event.pointerId === this.logoDragState.pointerId) {
+                const deltaX = ((event.clientX - this.logoDragState.startClientX) / this.logoDragState.canvasRect.width) * 100;
+                const deltaY = ((event.clientY - this.logoDragState.startClientY) / this.logoDragState.canvasRect.height) * 100;
+
+                this.logoX = Math.min(this.logoDragState.maxX, Math.max(this.logoDragState.minX, this.logoDragState.startX + deltaX));
+                this.logoY = Math.min(this.logoDragState.maxY, Math.max(this.logoDragState.minY, this.logoDragState.startY + deltaY));
+
+                return;
+            }
+
             if (this.copyDragState && event.pointerId === this.copyDragState.pointerId) {
                 const deltaX = ((event.clientX - this.copyDragState.startClientX) / this.copyDragState.canvasRect.width) * 100;
                 const deltaY = ((event.clientY - this.copyDragState.startClientY) / this.copyDragState.canvasRect.height) * 100;
@@ -369,37 +443,42 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
-            if (this.resizeState && event.pointerId === this.resizeState.pointerId && this.selectedPerson) {
+            if (this.resizeState && event.pointerId === this.resizeState.pointerId && this.selectedImage) {
                 const distance = Math.hypot(event.clientX - this.resizeState.centerClientX, event.clientY - this.resizeState.centerClientY);
                 const size = this.resizeState.startSize * (distance / this.resizeState.startDistance);
 
-                this.selectedPerson.size = Math.min(200, Math.max(16, size));
-                this.selectedPersonSize = this.selectedPerson.size;
-                this.refreshPersonStyle(this.selectedPerson);
+                this.selectedImage.size = Math.min(200, Math.max(16, size));
+                this.selectedImageSize = this.selectedImage.size;
+                this.refreshImageStyle(this.selectedImage);
 
                 return;
             }
 
-            if (!this.dragState || event.pointerId !== this.dragState.pointerId || !this.selectedPerson) {
+            if (!this.dragState || event.pointerId !== this.dragState.pointerId || !this.selectedImage) {
                 return;
             }
 
             const deltaX = ((event.clientX - this.dragState.startClientX) / this.dragState.canvasRect.width) * 100;
             const deltaY = ((event.clientY - this.dragState.startClientY) / this.dragState.canvasRect.height) * 100;
 
-            this.selectedPerson.x = Math.min(110, Math.max(-10, this.dragState.startX + deltaX));
-            this.selectedPerson.y = Math.min(110, Math.max(-10, this.dragState.startY + deltaY));
-            this.refreshPersonStyle(this.selectedPerson);
+            this.selectedImage.x = Math.min(110, Math.max(-10, this.dragState.startX + deltaX));
+            this.selectedImage.y = Math.min(110, Math.max(-10, this.dragState.startY + deltaY));
+            this.refreshImageStyle(this.selectedImage);
         },
 
         stopPointer(event) {
+            if (this.logoDragState && event.pointerId === this.logoDragState.pointerId) {
+                this.statusMessage = 'Logo moved.';
+                this.logoDragState = null;
+            }
+
             if (this.copyDragState && event.pointerId === this.copyDragState.pointerId) {
                 this.statusMessage = 'Headline moved.';
                 this.copyDragState = null;
             }
 
             if (this.resizeState && event.pointerId === this.resizeState.pointerId) {
-                this.statusMessage = `${this.selectedPerson?.name ?? 'Image'} resized to ${Math.round(this.selectedPersonSize)}%.`;
+                this.statusMessage = `${this.selectedImage?.name ?? 'Image'} resized to ${Math.round(this.selectedImageSize)}%.`;
                 this.resizeState = null;
             }
 
@@ -414,103 +493,110 @@ document.addEventListener('alpine:init', () => {
             this.copyDragState = null;
         },
 
-        syncSelectedPerson() {
-            if (this.selectedPerson) {
-                this.selectedPerson.size = this.selectedPersonSize;
-                this.selectedPerson.rotation = this.selectedPersonRotation;
-                this.refreshPersonStyle(this.selectedPerson);
+        resetLogoLayer() {
+            this.logoX = null;
+            this.logoY = null;
+            this.logoScale = 100;
+            this.logoDragState = null;
+        },
+
+        syncSelectedImage() {
+            if (this.selectedImage) {
+                this.selectedImage.size = this.selectedImageSize;
+                this.selectedImage.rotation = this.selectedImageRotation;
+                this.refreshImageStyle(this.selectedImage);
             }
         },
 
-        loadSelectedPersonControls() {
-            if (!this.selectedPerson) {
+        loadSelectedImageControls() {
+            if (!this.selectedImage) {
                 return;
             }
 
-            this.selectedPersonSize = this.selectedPerson.size;
-            this.selectedPersonRotation = this.selectedPerson.rotation;
+            this.selectedImageSize = this.selectedImage.size;
+            this.selectedImageRotation = this.selectedImage.rotation;
         },
 
-        refreshPeopleStyles() {
-            this.placedPeople.forEach((person) => this.refreshPersonStyle(person));
+        refreshImageStyles() {
+            this.placedImages.forEach((imageLayer) => this.refreshImageStyle(imageLayer));
         },
 
-        refreshPersonStyle(person) {
-            const flip = person.flipped ? -1 : 1;
-            person.style = `left: ${person.x}%; top: ${person.y}%; width: ${person.size}%; transform: translate(-50%, -50%) rotate(${person.rotation}deg) scaleX(${flip});`;
-            person.classNames = [person.id === this.selectedPersonId ? 'is-selected' : '', person.layer === 'above' ? 'is-above-text' : '']
+        refreshImageStyle(imageLayer) {
+            const flip = imageLayer.flipped ? -1 : 1;
+            imageLayer.style = `left: ${imageLayer.x}%; top: ${imageLayer.y}%; width: ${imageLayer.size}%; transform: translate(-50%, -50%) rotate(${imageLayer.rotation}deg) scaleX(${flip});`;
+            imageLayer.classNames = [imageLayer.id === this.selectedImageId ? 'is-selected' : '', imageLayer.layer === 'above' ? 'is-above-text' : '']
                 .filter(Boolean)
                 .join(' ');
         },
 
-        setSelectedPersonLayer(event) {
-            if (!this.selectedPerson || !['behind', 'above'].includes(event.currentTarget.dataset.personLayer)) {
+        setSelectedImageLayer(event) {
+            if (!this.selectedImage || !['behind', 'above'].includes(event.currentTarget.dataset.imageLayer)) {
                 return;
             }
 
-            this.selectedPerson.layer = event.currentTarget.dataset.personLayer;
-            this.refreshPersonStyle(this.selectedPerson);
-            this.statusMessage = `${this.selectedPerson.name} moved ${this.selectedPerson.layer === 'above' ? 'above' : 'behind'} the headline.`;
+            this.selectedImage.layer = event.currentTarget.dataset.imageLayer;
+            this.refreshImageStyle(this.selectedImage);
+            this.statusMessage = `${this.selectedImage.name} moved ${this.selectedImage.layer === 'above' ? 'above' : 'behind'} the headline.`;
         },
 
-        flipSelectedPerson() {
-            if (!this.selectedPerson) {
+        flipSelectedImage() {
+            if (!this.selectedImage) {
                 return;
             }
 
-            this.selectedPerson.flipped = !this.selectedPerson.flipped;
-            this.refreshPersonStyle(this.selectedPerson);
+            this.selectedImage.flipped = !this.selectedImage.flipped;
+            this.refreshImageStyle(this.selectedImage);
         },
 
         bringSelectedForward() {
-            const index = this.placedPeople.findIndex((person) => person.id === this.selectedPersonId);
+            const index = this.placedImages.findIndex((imageLayer) => imageLayer.id === this.selectedImageId);
 
-            if (index < 0 || index === this.placedPeople.length - 1) {
+            if (index < 0 || index === this.placedImages.length - 1) {
                 return;
             }
 
-            const [person] = this.placedPeople.splice(index, 1);
-            this.placedPeople.splice(index + 1, 0, person);
+            const [imageLayer] = this.placedImages.splice(index, 1);
+            this.placedImages.splice(index + 1, 0, imageLayer);
         },
 
         sendSelectedBackward() {
-            const index = this.placedPeople.findIndex((person) => person.id === this.selectedPersonId);
+            const index = this.placedImages.findIndex((imageLayer) => imageLayer.id === this.selectedImageId);
 
             if (index <= 0) {
                 return;
             }
 
-            const [person] = this.placedPeople.splice(index, 1);
-            this.placedPeople.splice(index - 1, 0, person);
+            const [imageLayer] = this.placedImages.splice(index, 1);
+            this.placedImages.splice(index - 1, 0, imageLayer);
         },
 
-        removeSelectedPerson() {
-            if (!this.selectedPersonId) {
+        removeSelectedImage() {
+            if (!this.selectedImageId) {
                 return;
             }
 
-            this.placedPeople = this.placedPeople.filter((person) => person.id !== this.selectedPersonId);
-            this.selectedPersonId = null;
-            this.refreshPeopleStyles();
-            this.statusMessage = 'Person removed from the canvas.';
+            this.placedImages = this.placedImages.filter((imageLayer) => imageLayer.id !== this.selectedImageId);
+            this.selectedImageId = null;
+            this.refreshImageStyles();
+            this.statusMessage = 'Image removed from the canvas.';
         },
 
-        clearPeople() {
-            this.placedPeople = [];
-            this.selectedPersonId = null;
-            this.statusMessage = 'Canvas people cleared.';
+        clearImages() {
+            this.placedImages = [];
+            this.selectedImageId = null;
+            this.statusMessage = 'Canvas images cleared.';
         },
 
         handleKeyboard(event) {
             const isFormControl = ['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target.tagName);
 
-            if (isFormControl || !this.selectedPerson) {
+            if (isFormControl || !this.selectedImage) {
                 return;
             }
 
             if (['Backspace', 'Delete'].includes(event.key)) {
                 event.preventDefault();
-                this.removeSelectedPerson();
+                this.removeSelectedImage();
                 return;
             }
 
@@ -527,9 +613,9 @@ document.addEventListener('alpine:init', () => {
             }
 
             event.preventDefault();
-            this.selectedPerson.x += movements[event.key][0];
-            this.selectedPerson.y += movements[event.key][1];
-            this.refreshPersonStyle(this.selectedPerson);
+            this.selectedImage.x += movements[event.key][0];
+            this.selectedImage.y += movements[event.key][1];
+            this.refreshImageStyle(this.selectedImage);
         },
 
         async exportPng() {
@@ -548,8 +634,16 @@ document.addEventListener('alpine:init', () => {
                 await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
                 const dataUrl = await domToPng(canvas, {
-                    scale: this.selectedFormat.width / canvas.offsetWidth,
-                    backgroundColor: this.brand === 'cloud' ? '#0927c9' : '#f72b1c',
+                    width: this.selectedFormat.width,
+                    height: this.selectedFormat.height,
+                    scale: 1,
+                    style: {
+                        width: `${this.selectedFormat.width}px`,
+                        height: `${this.selectedFormat.height}px`,
+                        maxWidth: 'none',
+                        maxHeight: 'none',
+                    },
+                    backgroundColor: this.format === 'og' ? '#ffffff' : this.brand === 'cloud' ? '#0927c9' : '#f72b1c',
                     filter: (node) => !(node instanceof Element && node.hasAttribute('data-export-ignore')),
                 });
 
