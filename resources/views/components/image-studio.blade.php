@@ -1,6 +1,8 @@
 <section
     class="image-studio"
     x-data="imageStudio"
+    data-shared-images-index-url="{{ route('shared-images.index') }}"
+    data-shared-images-store-url="{{ route('shared-images.store') }}"
     x-on:keydown.window="handleKeyboard"
     x-on:pointermove.window="movePointer"
     x-on:pointerup.window="stopPointer"
@@ -418,7 +420,7 @@
             <div class="studio-panel__section">
                 <div class="studio-panel__heading">
                     <span>Images</span>
-                    <span class="studio-panel__meta" x-text="`${imageLibrary.length} approved`"></span>
+                    <span class="studio-panel__meta" x-text="`${savedImageCount} shared`"></span>
                 </div>
 
                 <flux:file-upload
@@ -437,21 +439,37 @@
                         <i></i>
                         <i></i>
                     </div>
-                    <p>Add people, product shots, screenshots, or any other image.</p>
+                    <p>Add people, product shots, screenshots, or any other image. Save once to share it with everyone.</p>
                 </div>
 
                 <div class="image-library" x-show="imageLibrary.length > 0">
                     <template x-for="imageLayer in imageLibrary" x-bind:key="imageLayer.id">
-                        <button
-                            type="button"
-                            x-bind:data-image-id="imageLayer.id"
-                            x-on:click="addImage"
-                            x-bind:aria-label="`Add ${imageLayer.name} to canvas`"
-                        >
-                            <img x-bind:src="imageLayer.src" x-bind:alt="imageLayer.name" />
-                            <span x-text="imageLayer.name"></span>
-                            <i><flux:icon.plus /></i>
-                        </button>
+                        <div class="image-library__item">
+                            <button
+                                class="image-library__add"
+                                type="button"
+                                x-bind:data-image-id="imageLayer.id"
+                                x-on:click="addImage"
+                                x-bind:aria-label="`Add ${imageLayer.name} to canvas`"
+                            >
+                                <img x-bind:src="imageLayer.src" x-bind:alt="imageLayer.name" />
+                                <span x-text="imageLayer.name"></span>
+                                <i><flux:icon.plus /></i>
+                            </button>
+                            <button
+                                class="image-library__save"
+                                type="button"
+                                x-show="!imageLayer.isSaved"
+                                x-bind:data-image-id="imageLayer.id"
+                                x-bind:disabled="imageLayer.isSaving"
+                                x-on:click="saveImage"
+                                x-text="imageLayer.isSaving ? 'Saving…' : 'Save for everyone'"
+                            ></button>
+                            <span class="image-library__saved" x-show="imageLayer.isSaved">
+                                <flux:icon.check-circle />
+                                Shared
+                            </span>
+                        </div>
                     </template>
                 </div>
             </div>

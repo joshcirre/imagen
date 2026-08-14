@@ -979,7 +979,13 @@
         gap: 0.45rem;
     }
 
-    .image-library button {
+    .image-library__item {
+        display: grid;
+        min-width: 0;
+        gap: 0.3rem;
+    }
+
+    .image-library__add {
         position: relative;
         display: grid;
         min-width: 0;
@@ -1025,11 +1031,40 @@
         transition: 120ms ease;
     }
 
-    .image-library button:hover i {
+    .image-library__add:hover i {
         opacity: 1;
     }
 
     .image-library i svg {
+        width: 0.65rem;
+    }
+
+    .image-library .image-library__save {
+        border-radius: 0.35rem;
+        padding: 0.2rem 0.3rem;
+        color: white;
+        background: #18181b;
+        font-size: 0.52rem;
+        font-weight: 600;
+        line-height: 1.2;
+    }
+
+    .image-library .image-library__save:disabled {
+        cursor: wait;
+        opacity: 0.55;
+    }
+
+    .image-library .image-library__saved {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.2rem;
+        color: #16a34a;
+        font-size: 0.52rem;
+        font-weight: 600;
+    }
+
+    .image-library__saved svg {
         width: 0.65rem;
     }
 

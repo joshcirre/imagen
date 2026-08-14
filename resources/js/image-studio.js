@@ -70,6 +70,10 @@ document.addEventListener('alpine:init', () => {
         showSafeAreas: false,
         statusMessage: 'Ready to design.',
 
+        init() {
+            this.loadSharedImages();
+        },
+
         get selectedFormat() {
             return formats[this.format];
         },
@@ -142,6 +146,10 @@ document.addEventListener('alpine:init', () => {
 
         get reversedPlacedImages() {
             return [...this.placedImages].reverse();
+        },
+
+        get savedImageCount() {
+            return this.imageLibrary.filter((imageLayer) => imageLayer.isSaved).length;
         },
 
         selectBrand(event) {
@@ -271,12 +279,80 @@ document.addEventListener('alpine:init', () => {
                     id: window.crypto.randomUUID(),
                     name: file.name.replace(/\.(png|jpe?g|webp)$/i, ''),
                     src: await this.readFile(file),
+                    file,
+                    isSaved: false,
+                    isSaving: false,
                 }))
             );
 
             this.imageLibrary.push(...assets);
-            this.statusMessage = `${assets.length} ${assets.length === 1 ? 'image' : 'images'} added to the session tray.`;
+            this.statusMessage = `${assets.length} ${assets.length === 1 ? 'image is' : 'images are'} ready to use or save for everyone.`;
             this.resetFileInput(upload);
+        },
+
+        async loadSharedImages() {
+            try {
+                const response = await fetch(this.$root.dataset.sharedImagesIndexUrl, {
+                    headers: { Accept: 'application/json' },
+                });
+
+                if (!response.ok) {
+                    throw new Error('The shared image library could not be loaded.');
+                }
+
+                const payload = await response.json();
+                const localIds = new Set(this.imageLibrary.map((imageLayer) => imageLayer.id));
+                this.imageLibrary.unshift(...payload.data.filter((imageLayer) => !localIds.has(imageLayer.id)));
+            } catch {
+                this.statusMessage = 'The shared image library is temporarily unavailable.';
+            }
+        },
+
+        async saveImage(event) {
+            const asset = this.imageLibrary.find((imageLayer) => imageLayer.id === event.currentTarget.dataset.imageId);
+
+            if (!asset || asset.isSaved || asset.isSaving || !asset.file) {
+                return;
+            }
+
+            asset.isSaving = true;
+            const formData = new FormData();
+            formData.append('images[]', asset.file);
+
+            try {
+                const response = await fetch(this.$root.dataset.sharedImagesStoreUrl, {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+                    },
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error('The image could not be saved.');
+                }
+
+                const payload = await response.json();
+                const [savedAsset] = payload.data;
+
+                this.placedImages
+                    .filter((imageLayer) => imageLayer.assetId === asset.id)
+                    .forEach((imageLayer) => {
+                        imageLayer.src = savedAsset.src;
+                        imageLayer.name = savedAsset.name;
+                    });
+
+                asset.name = savedAsset.name;
+                asset.src = savedAsset.src;
+                asset.file = null;
+                asset.isSaved = true;
+                this.statusMessage = `${asset.name} is now shared with everyone.`;
+            } catch {
+                this.statusMessage = `${asset.name} could not be saved. Try again.`;
+            } finally {
+                asset.isSaving = false;
+            }
         },
 
         async handleBackgroundUpload(event) {
