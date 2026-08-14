@@ -16,3 +16,7 @@ Editable artwork headlines use Instrument Sans Regular (400) with white as the d
 ## Use exact default thumbnail headline metrics
 
 The default 1280px thumbnail headline is 85px (6.640625cqw) with 100% line height and Instrument Sans Regular/400. Keep OG-specific headline metrics separate.
+
+## Use zero headline tracking
+
+Template headline letter spacing is 0% (`letter-spacing: 0`) across thumbnail and OG formats. Do not apply negative tracking.
