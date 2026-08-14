@@ -5,11 +5,13 @@ const formats = {
         label: 'Thumbnail',
         width: 1280,
         height: 720,
+        exportScale: 2,
     },
     og: {
         label: 'Open Graph',
         width: 1200,
         height: 630,
+        exportScale: 1,
     },
 };
 
@@ -145,6 +147,14 @@ document.addEventListener('alpine:init', () => {
 
         get formatDescription() {
             return `${this.selectedFormat.label} · ${this.selectedFormat.width} × ${this.selectedFormat.height}`;
+        },
+
+        get exportWidth() {
+            return this.selectedFormat.width * this.selectedFormat.exportScale;
+        },
+
+        get exportHeight() {
+            return this.selectedFormat.height * this.selectedFormat.exportScale;
         },
 
         get exportButtonLabel() {
@@ -893,7 +903,7 @@ document.addEventListener('alpine:init', () => {
                 const dataUrl = await domToPng(exportCanvas, {
                     width: this.selectedFormat.width,
                     height: this.selectedFormat.height,
-                    scale: 1,
+                    scale: this.selectedFormat.exportScale,
                     style: {
                         width: `${this.selectedFormat.width}px`,
                         height: `${this.selectedFormat.height}px`,
@@ -909,7 +919,7 @@ document.addEventListener('alpine:init', () => {
                 link.download = `${this.slugify(this.title)}-${this.format}.png`;
                 link.href = dataUrl;
                 link.click();
-                this.statusMessage = `${this.selectedFormat.width} × ${this.selectedFormat.height} PNG exported.`;
+                this.statusMessage = `${this.exportWidth} × ${this.exportHeight} PNG exported.`;
             } catch (error) {
                 console.error(error);
                 this.statusMessage = 'Export failed. Check the browser console for details.';

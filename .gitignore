@@ -45,3 +45,7 @@ bun-debug.log
 .windsurf/
 .zencoder/
 skills/
+!/.agents/skills/
+/.agents/skills/*
+!/.agents/skills/add-figma-thumbnail-template/
+!/.agents/skills/add-figma-thumbnail-template/**

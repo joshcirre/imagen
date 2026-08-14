@@ -1,0 +1,4 @@
+interface:
+    display_name: 'Add Figma Thumbnail Template'
+    short_description: 'Import exact Figma frames into Imagen'
+    default_prompt: 'Use $add-figma-thumbnail-template to add this designer-provided Figma thumbnail frame to Imagen as an exact editable template.'
