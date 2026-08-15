@@ -128,16 +128,6 @@
                     </button>
                     <button
                         type="button"
-                        data-template="cloud-comparison"
-                        data-figma-node="28:220441"
-                        x-on:click="selectTemplate"
-                        x-bind:aria-pressed="template === 'cloud-comparison'"
-                    >
-                        <img class="template-preview" src="/img/youtube-templates/cloud-comparison-preview.png" alt="" />
-                        <span>Cloud vs Vapor</span>
-                    </button>
-                    <button
-                        type="button"
                         data-template="starter-kits"
                         data-figma-node="27:217728"
                         x-on:click="selectTemplate"
@@ -164,7 +154,31 @@
                         x-bind:aria-pressed="template === 'nightwatch-ama'"
                     >
                         <img class="template-preview" src="/img/youtube-templates/nightwatch-ama-preview.png" alt="" />
-                        <span>Nightwatch AMA</span>
+                        <span>Nightwatch</span>
+                    </button>
+                    <button
+                        type="button"
+                        data-template="person-text"
+                        x-on:click="selectTemplate"
+                        x-bind:aria-pressed="template === 'person-text'"
+                    >
+                        <span class="template-preview template-preview--person-text">
+                            <i></i>
+                            <i></i>
+                        </span>
+                        <span>Person + text</span>
+                    </button>
+                    <button
+                        type="button"
+                        data-template="person-code"
+                        x-on:click="selectTemplate"
+                        x-bind:aria-pressed="template === 'person-code'"
+                    >
+                        <span class="template-preview template-preview--person-code">
+                            <i></i>
+                            <i></i>
+                        </span>
+                        <span>Person + code</span>
                     </button>
                 </div>
 
@@ -240,33 +254,10 @@
                             <span></span>
                         </div>
 
-                        <div class="template-art template-art--cloud-bill" x-show="template === 'cloud-bill'">
-                            <img src="/img/youtube-templates/cloud-bill-product.png" alt="" />
-                        </div>
-
-                        <div class="template-art template-art--cloud-comparison" x-show="template === 'cloud-comparison'">
-                            <img class="comparison-art comparison-art--cloud-mark" src="/img/youtube-templates/comparison-cloud-mark.svg" alt="" />
-                            <img class="comparison-art comparison-art--cloud-ui" src="/img/youtube-templates/comparison-cloud-ui.png" alt="" />
-                            <img class="comparison-art comparison-art--vapor-mark" src="/img/youtube-templates/comparison-vapor-mark.svg" alt="" />
-                            <img class="comparison-art comparison-art--vapor-ui" src="/img/youtube-templates/comparison-vapor-ui.png" alt="" />
-                            <i></i>
-                        </div>
-
-                        <div class="template-art template-art--starter-kits" x-show="template === 'starter-kits'">
-                            <img class="starter-art starter-art--dashboard" src="/img/youtube-templates/starter-dashboard.png" alt="" />
-                            <img class="starter-art starter-art--register" src="/img/youtube-templates/starter-register.png" alt="" />
-                            <img class="starter-art starter-art--cubes" src="/img/youtube-templates/starter-kit-cubes.png" alt="" />
-                        </div>
-
-                        <div class="template-art template-art--cloud-ama" x-show="template === 'cloud-ama'">
-                            <img class="cloud-ama-art cloud-ama-art--background" src="/img/youtube-templates/cloud-ama-background.png" alt="" />
-                            <img class="cloud-ama-art cloud-ama-art--watermark" src="/img/youtube-templates/cloud-ama-watermark.svg" alt="" />
-                        </div>
-
-                        <div class="template-art template-art--nightwatch" x-show="template === 'nightwatch-ama'">
-                            <img class="nightwatch-art nightwatch-art--dashboard" src="/img/youtube-templates/nightwatch-dashboard.png" alt="" />
-                            <img class="nightwatch-art nightwatch-art--gradient" src="/img/youtube-templates/nightwatch-gradient.png" alt="" />
-                        </div>
+                        <div class="template-art template-art--cloud-bill" x-show="template === 'cloud-bill'"></div>
+                        <div class="template-art template-art--starter-kits" x-show="template === 'starter-kits'"></div>
+                        <div class="template-art template-art--cloud-ama" x-show="template === 'cloud-ama'"></div>
+                        <div class="template-art template-art--nightwatch" x-show="template === 'nightwatch-ama'"></div>
                     </div>
 
                     <div class="artboard__safe-areas" x-show="showSafeAreas && format === 'thumbnail'" data-export-ignore aria-hidden="true">
@@ -298,12 +289,6 @@
                         <div class="artboard__headline-row">
                             <p class="artboard__supporting" x-show="hasSupportingText" x-text="supportingText"></p>
                             <h2 x-bind:style="headlineStyle" x-text="title"></h2>
-                            <img
-                                class="artboard__versus"
-                                x-show="format === 'thumbnail' && template === 'cloud-comparison'"
-                                src="/img/youtube-templates/comparison-vs.svg"
-                                alt="versus"
-                            />
                         </div>
                     </div>
 

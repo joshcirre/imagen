@@ -15,30 +15,25 @@ test('the image studio is the public main page', function (): void {
     $templatePreviews = [
         'whats-new',
         'cloud-bill',
-        'cloud-comparison',
         'starter-kits',
         'cloud-ama',
         'nightwatch-ama',
     ];
     $templateAssets = [
         'whats-new-logo.svg',
-        'cloud-bill-product.png',
         'cloud-bill-logo.svg',
-        'comparison-cloud-ui.png',
-        'comparison-vapor-ui.png',
-        'comparison-cloud-mark.svg',
-        'comparison-vapor-mark.svg',
-        'comparison-vs.svg',
-        'comparison-logo.svg',
-        'starter-dashboard.png',
-        'starter-register.png',
-        'starter-kit-cubes.png',
-        'cloud-ama-background.png',
-        'cloud-ama-watermark.svg',
         'cloud-ama-logo.svg',
-        'nightwatch-dashboard.png',
-        'nightwatch-gradient.png',
         'nightwatch-logo-mark.svg',
+    ];
+    $fontAssets = [
+        'instrument-sans-latin.woff2',
+        'instrument-sans-latin-ext.woff2',
+        'instrument-serif-italic-latin.woff2',
+        'instrument-serif-italic-latin-ext.woff2',
+        'instrument-serif-regular-latin.woff2',
+        'instrument-serif-regular-latin-ext.woff2',
+        'rajdhani-medium-latin.woff2',
+        'rajdhani-medium-latin-ext.woff2',
     ];
 
     expect($studioStyles)->toContain("font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;")
@@ -54,24 +49,32 @@ test('the image studio is the public main page', function (): void {
         ->toContain('height: 59.305556%;')
         ->toContain("font-family: 'Instrument Serif', ui-serif, Georgia, serif;")
         ->toContain("font-family: 'Rajdhani', ui-sans-serif, system-ui, sans-serif;")
+        ->toContain("url('/fonts/instrument-sans-latin.woff2') format('woff2')")
+        ->toContain("url('/fonts/instrument-serif-italic-latin.woff2') format('woff2')")
+        ->toContain("url('/fonts/rajdhani-medium-latin.woff2') format('woff2')")
         ->toContain('.artboard--whats-new .artboard__copy')
-        ->toContain('.artboard--cloud-comparison .artboard__headline-row')
         ->toContain('.artboard--starter-kits .artboard__template-word')
         ->toContain('.artboard--cloud-ama .artboard__headline-row')
         ->toContain('.artboard--nightwatch-ama .artboard__eyebrow')
+        ->toContain('.artboard--person-text .artboard__copy')
+        ->toContain('.artboard--person-code .artboard__copy')
+        ->not->toContain('.artboard--cloud-comparison')
         ->not->toContain('.artboard__rule')
         ->and($studioScript)->toContain("'whats-new': {")
         ->toContain("'cloud-bill': {")
-        ->toContain("'cloud-comparison': {")
         ->toContain("'starter-kits': {")
         ->toContain("'cloud-ama': {")
         ->toContain("'nightwatch-ama': {")
+        ->toContain("'person-text': {")
+        ->toContain("'person-code': {")
+        ->toContain("label: 'Nightwatch'")
+        ->not->toContain("'cloud-comparison': {")
         ->toContain("figmaNode: '5:9008'")
         ->toContain("figmaNode: '35:244539'")
         ->toContain("fontLabel: 'Instrument Serif + Sans SemiCondensed'")
         ->toContain("fontLabel: 'Rajdhani Medium'")
         ->toContain('resetTemplate()')
-        ->toContain('template reset to its Figma defaults')
+        ->toContain('template reset to its defaults')
         ->toContain('sanitizeExportClone(clone)')
         ->toContain("attributeName.startsWith('x-')")
         ->toContain('createExportCanvas(canvas)')
@@ -118,6 +121,10 @@ test('the image studio is the public main page', function (): void {
         expect(public_path("img/youtube-templates/{$templateAsset}"))->toBeFile();
     }
 
+    foreach ($fontAssets as $fontAsset) {
+        expect(public_path("fonts/{$fontAsset}"))->toBeFile();
+    }
+
     get(route('dashboard'))
         ->assertSuccessful()
         ->assertSee('Create share-ready graphics.')
@@ -125,10 +132,13 @@ test('the image studio is the public main page', function (): void {
         ->assertSee('Figma')
         ->assertSee("What's New", false)
         ->assertSee('Cloud Bill')
-        ->assertSee('Cloud vs Vapor')
         ->assertSee('Starter Kits')
         ->assertSee('Cloud AMA')
-        ->assertSee('Nightwatch AMA')
+        ->assertSee('Nightwatch')
+        ->assertSee('Person + text')
+        ->assertSee('Person + code')
+        ->assertDontSee('Cloud vs Vapor')
+        ->assertDontSee('Nightwatch AMA')
         ->assertSee('data-figma-node="5:9008"', false)
         ->assertSee('data-figma-node="35:244539"', false)
         ->assertSee('Reset template')
@@ -161,6 +171,15 @@ test('the image studio is the public main page', function (): void {
         ->assertSee('data-flux-file-upload', false)
         ->assertSee('/img/laravel-cloud-logo.png', false)
         ->assertSee('/img/laravel-logo.png', false)
+        ->assertDontSee('/img/youtube-templates/cloud-bill-product.png', false)
+        ->assertDontSee('/img/youtube-templates/starter-dashboard.png', false)
+        ->assertDontSee('/img/youtube-templates/starter-register.png', false)
+        ->assertDontSee('/img/youtube-templates/starter-kit-cubes.png', false)
+        ->assertDontSee('/img/youtube-templates/cloud-ama-background.png', false)
+        ->assertDontSee('/img/youtube-templates/cloud-ama-watermark.svg', false)
+        ->assertDontSee('/img/youtube-templates/nightwatch-dashboard.png', false)
+        ->assertDontSee('/img/youtube-templates/nightwatch-gradient.png', false)
+        ->assertDontSee('fonts.googleapis.com', false)
         ->assertSee('accept="image/png,image/jpeg,image/webp"', false)
         ->assertSee('data-image-layer="behind"', false)
         ->assertSee('data-image-layer="above"', false)

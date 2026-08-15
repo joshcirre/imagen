@@ -44,20 +44,6 @@ const thumbnailTemplates = {
         slotLabel: 'Add supporting image',
         imageSlots: [{ x: 76, y: 38, size: 42, rotation: -8, layer: 'behind' }],
     },
-    'cloud-comparison': {
-        label: 'Cloud vs Vapor',
-        brand: 'cloud',
-        figmaNode: '28:220441',
-        fontLabel: 'Instrument Sans Medium',
-        logo: '/img/youtube-templates/comparison-logo.svg',
-        alignment: 'center',
-        headlineSize: 100,
-        eyebrow: '',
-        title: 'Cloud',
-        supportingText: 'Vapor',
-        slotLabel: null,
-        imageSlots: [],
-    },
     'starter-kits': {
         label: 'Starter Kits',
         brand: 'laravel',
@@ -87,7 +73,7 @@ const thumbnailTemplates = {
         imageSlots: [{ x: 94, y: 66, size: 56, rotation: 0, layer: 'above' }],
     },
     'nightwatch-ama': {
-        label: 'Nightwatch AMA',
+        label: 'Nightwatch',
         brand: 'cloud',
         figmaNode: '35:244539',
         fontLabel: 'Rajdhani Medium',
@@ -101,6 +87,37 @@ const thumbnailTemplates = {
         imageSlots: [
             { x: 84, y: 55, size: 98, rotation: 0, layer: 'above' },
             { x: 19, y: 62, size: 13, rotation: 0, layer: 'above' },
+        ],
+    },
+    'person-text': {
+        label: 'Person + text',
+        brand: null,
+        fontLabel: 'Instrument Sans Regular',
+        logo: null,
+        usesBrandLogo: true,
+        alignment: 'left',
+        headlineSize: 100,
+        eyebrow: '',
+        title: 'Ship Laravel without\nthe server stress.',
+        supportingText: '',
+        slotLabel: 'Add person',
+        imageSlots: [{ x: 78, y: 58, size: 52, rotation: 0, layer: 'above' }],
+    },
+    'person-code': {
+        label: 'Person + code',
+        brand: null,
+        fontLabel: 'Instrument Sans Regular',
+        logo: null,
+        usesBrandLogo: true,
+        alignment: 'left',
+        headlineSize: 92,
+        eyebrow: '',
+        title: 'Ship Laravel without\nthe server stress.',
+        supportingText: '',
+        slotLabel: 'Add person, then code',
+        imageSlots: [
+            { x: 78, y: 57, size: 48, rotation: 0, layer: 'above' },
+            { x: 54, y: 72, size: 42, rotation: -2, layer: 'behind' },
         ],
     },
 };
@@ -167,6 +184,10 @@ document.addEventListener('alpine:init', () => {
 
         get brandLogo() {
             if (this.format === 'thumbnail') {
+                if (this.activeTemplate.usesBrandLogo) {
+                    return this.brand === 'cloud' ? '/img/laravel-cloud-logo.png' : '/img/laravel.svg';
+                }
+
                 return this.activeTemplate.logo;
             }
 
@@ -276,7 +297,11 @@ document.addEventListener('alpine:init', () => {
             }
 
             this.template = template;
-            this.brand = definition.brand;
+
+            if (definition.brand) {
+                this.brand = definition.brand;
+            }
+
             this.alignment = definition.alignment;
             this.headlineSize = definition.headlineSize;
             this.eyebrow = definition.eyebrow;
@@ -306,7 +331,7 @@ document.addEventListener('alpine:init', () => {
 
         resetTemplate() {
             this.applyTemplate(this.template, false);
-            this.statusMessage = `${this.templateLabel(this.template)} template reset to its Figma defaults.`;
+            this.statusMessage = `${this.templateLabel(this.template)} template reset to its defaults.`;
         },
 
         generateVariation() {

@@ -1,6 +1,96 @@
 @import 'tailwindcss';
 @import '../../vendor/livewire/flux/dist/flux.css';
 
+@font-face {
+    font-family: 'Instrument Sans';
+    font-style: normal;
+    font-weight: 400 700;
+    font-stretch: 75% 100%;
+    font-display: swap;
+    src: url('/fonts/instrument-sans-latin-ext.woff2') format('woff2');
+    unicode-range:
+        U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+        U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+    font-family: 'Instrument Sans';
+    font-style: normal;
+    font-weight: 400 700;
+    font-stretch: 75% 100%;
+    font-display: swap;
+    src: url('/fonts/instrument-sans-latin.woff2') format('woff2');
+    unicode-range:
+        U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+        U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: 'Instrument Serif';
+    font-style: italic;
+    font-weight: 400;
+    font-display: swap;
+    src: url('/fonts/instrument-serif-italic-latin-ext.woff2') format('woff2');
+    unicode-range:
+        U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+        U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+    font-family: 'Instrument Serif';
+    font-style: italic;
+    font-weight: 400;
+    font-display: swap;
+    src: url('/fonts/instrument-serif-italic-latin.woff2') format('woff2');
+    unicode-range:
+        U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+        U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: 'Instrument Serif';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('/fonts/instrument-serif-regular-latin-ext.woff2') format('woff2');
+    unicode-range:
+        U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+        U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+    font-family: 'Instrument Serif';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('/fonts/instrument-serif-regular-latin.woff2') format('woff2');
+    unicode-range:
+        U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+        U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+    font-family: 'Rajdhani';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('/fonts/rajdhani-medium-latin-ext.woff2') format('woff2');
+    unicode-range:
+        U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020,
+        U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+    font-family: 'Rajdhani';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('/fonts/rajdhani-medium-latin.woff2') format('woff2');
+    unicode-range:
+        U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+        U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
@@ -287,6 +377,62 @@
     .template-grid button[aria-pressed='true'] .template-preview {
         border-color: #18181b;
         box-shadow: 0 0 0 1px #18181b;
+    }
+
+    .template-preview i {
+        position: absolute;
+        display: block;
+        background: #18181b;
+    }
+
+    .template-preview i:last-child {
+        border-radius: 999px 999px 0 0;
+        background: #a1a1aa;
+    }
+
+    .template-preview--person-text {
+        background-color: #05052d;
+        background-image:
+            linear-gradient(rgb(255 255 255 / 8%) 1px, transparent 1px), linear-gradient(90deg, rgb(255 255 255 / 8%) 1px, transparent 1px);
+        background-size: 10px 10px;
+    }
+
+    .template-preview--person-text i:first-child {
+        top: 30%;
+        left: 12%;
+        width: 46%;
+        height: 24%;
+        background: white;
+    }
+
+    .template-preview--person-text i:last-child {
+        right: 5%;
+        bottom: 0;
+        width: 30%;
+        height: 72%;
+    }
+
+    .template-preview--person-code {
+        background-color: #f72b1c;
+        background-image:
+            linear-gradient(rgb(255 255 255 / 10%) 1px, transparent 1px), linear-gradient(90deg, rgb(255 255 255 / 10%) 1px, transparent 1px);
+        background-size: 10px 10px;
+    }
+
+    .template-preview--person-code i:first-child {
+        top: 24%;
+        left: 9%;
+        width: 42%;
+        height: 28%;
+        background: white;
+    }
+
+    .template-preview--person-code i:last-child {
+        right: 4%;
+        bottom: 8%;
+        width: 38%;
+        height: 58%;
+        border-radius: 0.16rem;
     }
 
     .template-actions {
@@ -643,7 +789,6 @@
 
     .artboard--thumbnail.artboard--whats-new,
     .artboard--thumbnail.artboard--cloud-bill,
-    .artboard--thumbnail.artboard--cloud-comparison,
     .artboard--thumbnail.artboard--starter-kits,
     .artboard--thumbnail.artboard--cloud-ama,
     .artboard--thumbnail.artboard--nightwatch-ama {
@@ -654,15 +799,17 @@
     .artboard--thumbnail.artboard--whats-new::after,
     .artboard--thumbnail.artboard--cloud-bill::before,
     .artboard--thumbnail.artboard--cloud-bill::after,
-    .artboard--thumbnail.artboard--cloud-comparison::before,
-    .artboard--thumbnail.artboard--cloud-comparison::after,
     .artboard--thumbnail.artboard--starter-kits::before,
     .artboard--thumbnail.artboard--starter-kits::after,
     .artboard--thumbnail.artboard--cloud-ama::before,
     .artboard--thumbnail.artboard--cloud-ama::after,
     .artboard--thumbnail.artboard--nightwatch-ama::before,
     .artboard--thumbnail.artboard--nightwatch-ama::after,
-    .artboard--thumbnail[class*='artboard--'] .artboard__flare {
+    .artboard--thumbnail.artboard--whats-new .artboard__flare,
+    .artboard--thumbnail.artboard--cloud-bill .artboard__flare,
+    .artboard--thumbnail.artboard--starter-kits .artboard__flare,
+    .artboard--thumbnail.artboard--cloud-ama .artboard__flare,
+    .artboard--thumbnail.artboard--nightwatch-ama .artboard__flare {
         display: none;
     }
 
@@ -738,98 +885,6 @@
         content: '';
     }
 
-    .template-art--cloud-bill > img {
-        position: absolute;
-        z-index: 1;
-        top: 0;
-        right: 0;
-        width: 62.109375%;
-        height: 100%;
-        object-fit: contain;
-        object-position: top right;
-    }
-
-    .artboard--cloud-comparison {
-        background: linear-gradient(105deg, #0057ff 0 48.65%, #00c4d8 48.75% 100%);
-    }
-
-    .template-art--cloud-comparison::after {
-        position: absolute;
-        z-index: 3;
-        inset: 0;
-        background: #000916;
-        content: '';
-        mix-blend-mode: overlay;
-        opacity: 0.2;
-    }
-
-    .template-art--cloud-comparison::before {
-        position: absolute;
-        z-index: 2;
-        inset: 0;
-        background: linear-gradient(105deg, #0037a3 0 48.65%, #006c76 48.75% 100%);
-        content: '';
-        mix-blend-mode: multiply;
-        opacity: 0.78;
-    }
-
-    .comparison-art {
-        position: absolute;
-        max-width: none;
-        pointer-events: none;
-    }
-
-    .comparison-art--cloud-mark {
-        top: 7%;
-        left: -7%;
-        width: 48%;
-        opacity: 0.22;
-        transform: rotate(5deg) skewX(-10deg);
-        mix-blend-mode: soft-light;
-    }
-
-    .comparison-art--cloud-ui {
-        z-index: 1;
-        top: 0;
-        left: -31%;
-        width: 91.5%;
-        border: 0.31cqw solid white;
-        border-radius: 0.94cqw;
-        box-shadow: 0 1.3cqw 1.3cqw rgb(0 0 0 / 28%);
-        transform: rotate(5deg) skewX(-10deg) scaleY(0.98);
-    }
-
-    .comparison-art--vapor-mark {
-        top: 4%;
-        right: -13%;
-        width: 61.74%;
-        opacity: 0.22;
-        transform: rotate(5deg) skewX(-10deg);
-        mix-blend-mode: soft-light;
-    }
-
-    .comparison-art--vapor-ui {
-        z-index: 1;
-        top: 11%;
-        right: -25%;
-        width: 91.5%;
-        border: 0.31cqw solid white;
-        border-radius: 0.78cqw;
-        box-shadow: 0 1.3cqw 1.3cqw rgb(0 0 0 / 28%);
-        transform: rotate(5deg) skewX(-10deg) scaleY(0.98);
-    }
-
-    .template-art--cloud-comparison > i {
-        position: absolute;
-        z-index: 4;
-        top: -53%;
-        left: calc(50% - 0.08cqw);
-        width: 0.16cqw;
-        height: 165%;
-        background: white;
-        transform: rotate(15deg);
-    }
-
     .artboard--starter-kits {
         background: #161615;
     }
@@ -852,37 +907,6 @@
         content: '';
     }
 
-    .starter-art {
-        position: absolute;
-        max-width: none;
-    }
-
-    .starter-art--dashboard {
-        z-index: 1;
-        top: 8%;
-        left: 57%;
-        width: 91%;
-        border-radius: 0.78cqw;
-        transform: rotate(5deg) skewX(-10deg) scaleY(0.98);
-    }
-
-    .starter-art--register {
-        z-index: 2;
-        top: 19%;
-        left: 80%;
-        width: 52%;
-        border-radius: 0.78cqw;
-        box-shadow: 0 1.17cqw 3.28cqw rgb(0 0 0 / 52%);
-        transform: rotate(5deg) skewX(-10deg) scaleY(0.98);
-    }
-
-    .starter-art--cubes {
-        z-index: 5;
-        top: 68.75%;
-        left: 11.328125%;
-        width: 29.228125%;
-    }
-
     .artboard--cloud-ama {
         background: #100000;
     }
@@ -894,30 +918,6 @@
         background: linear-gradient(96deg, #000 3%, #1b0303 65%, transparent 92%);
         filter: blur(1.17cqw);
         content: '';
-    }
-
-    .cloud-ama-art {
-        position: absolute;
-        max-width: none;
-    }
-
-    .cloud-ama-art--background {
-        z-index: 1;
-        top: -31.527778%;
-        left: 40.46875%;
-        width: 91.71875%;
-        aspect-ratio: 1;
-        object-fit: cover;
-    }
-
-    .cloud-ama-art--watermark {
-        z-index: 3;
-        top: 5%;
-        left: -8%;
-        width: 58%;
-        opacity: 0.52;
-        transform: rotate(5deg) skewX(-10deg) scaleY(0.98);
-        mix-blend-mode: color-dodge;
     }
 
     .artboard--nightwatch-ama {
@@ -934,30 +934,6 @@
         opacity: 0.78;
     }
 
-    .nightwatch-art {
-        position: absolute;
-        max-width: none;
-    }
-
-    .nightwatch-art--dashboard {
-        z-index: 2;
-        right: -4%;
-        bottom: -26%;
-        width: 114%;
-        opacity: 0.96;
-        transform: rotate(-8deg);
-        mask-image: linear-gradient(to bottom, transparent, black 18% 84%, transparent);
-    }
-
-    .nightwatch-art--gradient {
-        z-index: 3;
-        top: -87.5%;
-        left: 15.15625%;
-        width: 93.75%;
-        height: 164.166667%;
-        object-fit: cover;
-    }
-
     .artboard__eyebrow,
     .artboard__supporting,
     .artboard__template-word {
@@ -968,9 +944,23 @@
         position: relative;
     }
 
-    .artboard__versus {
-        display: block;
-        pointer-events: none;
+    .artboard--person-text .artboard__copy {
+        top: 25%;
+        left: 5.7%;
+        width: 56%;
+    }
+
+    .artboard--person-code .artboard__copy {
+        top: 22%;
+        left: 5.7%;
+        width: 51%;
+    }
+
+    .artboard--person-code .artboard__image-slot {
+        top: 24%;
+        right: 7%;
+        width: 42%;
+        height: 58%;
     }
 
     .artboard--whats-new .artboard__brand {
@@ -1062,54 +1052,6 @@
     .artboard--cloud-bill .artboard__copy h2 {
         font-size: calc(8.28125cqw * var(--headline-scale, 1));
         white-space: nowrap;
-    }
-
-    .artboard--cloud-comparison .artboard__brand {
-        top: 13.611111%;
-        left: 9.140625%;
-    }
-
-    .artboard--cloud-comparison .artboard__brand-logo {
-        width: 21.484375cqw;
-        max-height: none;
-        filter: none;
-    }
-
-    .artboard--cloud-comparison .artboard__copy {
-        top: 38.958333%;
-        left: 9.140625%;
-        width: 82.1875%;
-    }
-
-    .artboard--cloud-comparison .artboard__headline-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .artboard--cloud-comparison .artboard__copy h2,
-    .artboard--cloud-comparison .artboard__supporting {
-        color: white;
-        font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
-        font-size: calc(10.9375cqw * var(--headline-scale, 1));
-        font-weight: 500;
-        line-height: normal;
-        letter-spacing: 0;
-        text-shadow: none;
-        white-space: nowrap;
-    }
-
-    .artboard--cloud-comparison .artboard__copy h2 {
-        order: 1;
-    }
-
-    .artboard--cloud-comparison .artboard__versus {
-        order: 2;
-        width: 9.616016cqw;
-    }
-
-    .artboard--cloud-comparison .artboard__supporting {
-        order: 3;
     }
 
     .artboard--starter-kits .artboard__copy {
