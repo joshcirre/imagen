@@ -33,88 +33,24 @@
 
     <div class="studio-workspace">
         <aside class="studio-panel studio-panel--library" aria-label="Brand and template library">
-            <div class="studio-panel__section" x-show="format === 'og'">
-                <div class="studio-panel__heading">
-                    <span>Brand</span>
-                    <span class="studio-panel__meta">Approved</span>
-                </div>
-
-                <div class="brand-options">
-                    <button
-                        type="button"
-                        class="brand-option brand-option--cloud"
-                        data-brand="cloud"
-                        x-on:click="selectBrand"
-                        x-bind:aria-pressed="brand === 'cloud'"
-                    >
-                        <span class="brand-option__preview">
-                            <img src="/img/laravel-cloud-logo.png" alt="" />
-                        </span>
-                        <span>
-                            <strong>Laravel Cloud</strong>
-                            <small>Blue grid</small>
-                        </span>
-                        <flux:icon.check-circle class="brand-option__check" />
-                    </button>
-
-                    <button
-                        type="button"
-                        class="brand-option brand-option--laravel"
-                        data-brand="laravel"
-                        x-on:click="selectBrand"
-                        x-bind:aria-pressed="brand === 'laravel'"
-                    >
-                        <span class="brand-option__preview">
-                            <img src="/img/laravel-logo.png" alt="" />
-                        </span>
-                        <span>
-                            <strong>Laravel</strong>
-                            <small>Red grid</small>
-                        </span>
-                        <flux:icon.check-circle class="brand-option__check" />
-                    </button>
-                </div>
-            </div>
-
-            <div class="studio-panel__section">
-                <div class="studio-panel__heading">
-                    <span>Format</span>
-                </div>
-
-                <div class="format-options">
-                    <button type="button" data-format="thumbnail" x-on:click="selectFormat" x-bind:aria-pressed="format === 'thumbnail'">
-                        <span class="format-icon format-icon--wide"></span>
-                        <span>
-                            <strong>Thumbnail</strong>
-                            <small>1280 × 720</small>
-                        </span>
-                    </button>
-                    <button type="button" data-format="og" x-on:click="selectFormat" x-bind:aria-pressed="format === 'og'">
-                        <span class="format-icon format-icon--og"></span>
-                        <span>
-                            <strong>Open Graph</strong>
-                            <small>1200 × 630</small>
-                        </span>
-                    </button>
-                </div>
-            </div>
-
             <div class="studio-panel__section">
                 <div class="studio-panel__heading">
                     <span>Template</span>
-                    <span class="studio-panel__meta">Figma</span>
+                    <span class="studio-panel__meta">3 essentials</span>
                 </div>
 
-                <div class="template-grid" x-show="format === 'thumbnail'">
+                <p class="studio-panel__hint">Choose the content shape. Each layout keeps its approved Figma composition.</p>
+
+                <div class="template-grid">
                     <button
                         type="button"
-                        data-template="whats-new"
-                        data-figma-node="5:9008"
+                        data-template="starter-kits"
+                        data-figma-node="27:217728"
                         x-on:click="selectTemplate"
-                        x-bind:aria-pressed="template === 'whats-new'"
+                        x-bind:aria-pressed="template === 'starter-kits'"
                     >
-                        <img class="template-preview" src="/img/youtube-templates/whats-new-preview.png" alt="" />
-                        <span>What's New</span>
+                        <img class="template-preview" src="/img/youtube-templates/starter-kits-preview.png" alt="" />
+                        <span>Announcement</span>
                     </button>
                     <button
                         type="button"
@@ -124,17 +60,7 @@
                         x-bind:aria-pressed="template === 'cloud-bill'"
                     >
                         <img class="template-preview" src="/img/youtube-templates/cloud-bill-preview.png" alt="" />
-                        <span>Cloud Bill</span>
-                    </button>
-                    <button
-                        type="button"
-                        data-template="starter-kits"
-                        data-figma-node="27:217728"
-                        x-on:click="selectTemplate"
-                        x-bind:aria-pressed="template === 'starter-kits'"
-                    >
-                        <img class="template-preview" src="/img/youtube-templates/starter-kits-preview.png" alt="" />
-                        <span>Starter Kits</span>
+                        <span>Product</span>
                     </button>
                     <button
                         type="button"
@@ -144,47 +70,11 @@
                         x-bind:aria-pressed="template === 'cloud-ama'"
                     >
                         <img class="template-preview" src="/img/youtube-templates/cloud-ama-preview.png" alt="" />
-                        <span>Cloud AMA</span>
-                    </button>
-                    <button
-                        type="button"
-                        data-template="nightwatch-ama"
-                        data-figma-node="35:244539"
-                        x-on:click="selectTemplate"
-                        x-bind:aria-pressed="template === 'nightwatch-ama'"
-                    >
-                        <img class="template-preview" src="/img/youtube-templates/nightwatch-ama-preview.png" alt="" />
-                        <span>Nightwatch</span>
-                    </button>
-                    <button
-                        type="button"
-                        data-template="person-text"
-                        x-on:click="selectTemplate"
-                        x-bind:aria-pressed="template === 'person-text'"
-                    >
-                        <span class="template-preview template-preview--person-text">
-                            <i></i>
-                            <i></i>
-                        </span>
-                        <span>Person + text</span>
-                    </button>
-                    <button
-                        type="button"
-                        data-template="person-code"
-                        x-on:click="selectTemplate"
-                        x-bind:aria-pressed="template === 'person-code'"
-                    >
-                        <span class="template-preview template-preview--person-code">
-                            <i></i>
-                            <i></i>
-                        </span>
-                        <span>Person + code</span>
+                        <span>Interview</span>
                     </button>
                 </div>
 
-                <p class="studio-panel__hint" x-show="format === 'og'">Open Graph uses the approved brand-specific composition.</p>
-
-                <div class="template-actions" x-show="format === 'thumbnail'">
+                <div class="template-actions">
                     <flux:button size="xs" variant="ghost" icon="arrow-path" x-on:click="resetTemplate">Reset template</flux:button>
                     <flux:button
                         size="xs"
@@ -244,23 +134,13 @@
                     <div class="artboard__flare artboard__flare--one"></div>
                     <div class="artboard__flare artboard__flare--two"></div>
 
-                    <div class="artboard__template-art" x-show="format === 'thumbnail'" aria-hidden="true">
-                        <div class="template-art template-art--whats-new" x-show="template === 'whats-new'">
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                            <span></span>
-                        </div>
-
+                    <div class="artboard__template-art" aria-hidden="true">
                         <div class="template-art template-art--cloud-bill" x-show="template === 'cloud-bill'"></div>
                         <div class="template-art template-art--starter-kits" x-show="template === 'starter-kits'"></div>
                         <div class="template-art template-art--cloud-ama" x-show="template === 'cloud-ama'"></div>
-                        <div class="template-art template-art--nightwatch" x-show="template === 'nightwatch-ama'"></div>
                     </div>
 
-                    <div class="artboard__safe-areas" x-show="showSafeAreas && format === 'thumbnail'" data-export-ignore aria-hidden="true">
+                    <div class="artboard__safe-areas" x-show="showSafeAreas" data-export-ignore aria-hidden="true">
                         <span class="artboard__safe-area artboard__safe-area--mobile">Mobile UI</span>
                         <span class="artboard__safe-area artboard__safe-area--time">Time</span>
                     </div>
@@ -274,7 +154,6 @@
                         x-on:pointerdown.prevent="startLogoDrag"
                     >
                         <img class="artboard__brand-logo" x-bind:src="brandLogo" alt="" draggable="false" />
-                        <span class="artboard__brand-name" x-show="format === 'thumbnail' && template === 'nightwatch-ama'">NIGHTWATCH</span>
                     </div>
 
                     <div
@@ -285,18 +164,14 @@
                         x-on:pointerdown.prevent="startCopyDrag"
                     >
                         <p class="artboard__eyebrow" x-show="hasEyebrow" x-text="eyebrow"></p>
-                        <span class="artboard__template-word" x-show="format === 'thumbnail' && template === 'starter-kits'">Laravel</span>
+                        <span class="artboard__template-word" x-show="template === 'starter-kits'">Laravel</span>
                         <div class="artboard__headline-row">
                             <p class="artboard__supporting" x-show="hasSupportingText" x-text="supportingText"></p>
                             <h2 x-bind:style="headlineStyle" x-text="title"></h2>
                         </div>
                     </div>
 
-                    <div
-                        class="artboard__image-slot"
-                        x-show="placedImages.length === 0 && templateSlotLabel && format === 'thumbnail'"
-                        data-export-ignore
-                    >
+                    <div class="artboard__image-slot" x-show="placedImages.length === 0 && templateSlotLabel" data-export-ignore>
                         <flux:icon.photo />
                         <span x-text="templateSlotLabel"></span>
                     </div>

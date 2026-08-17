@@ -7,33 +7,19 @@ use function Pest\Laravel\get;
 test('the image studio is the public main page', function (): void {
     $studioStyles = file_get_contents(resource_path('css/app.css'));
     $studioScript = file_get_contents(resource_path('js/image-studio.js'));
-    $cloudLogo = getimagesize(public_path('img/laravel-cloud-logo.png'));
     $cloudBackground = getimagesize(public_path('img/laravel-cloud-background.png'));
-    $cloudOpenGraphBackground = getimagesize(public_path('img/laravel-cloud-og-background.png'));
-    $laravelLogo = getimagesize(public_path('img/laravel-logo.png'));
-    $laravelOpenGraphBackground = getimagesize(public_path('img/laravel-og-background.png'));
     $templatePreviews = [
-        'whats-new',
         'cloud-bill',
         'starter-kits',
         'cloud-ama',
-        'nightwatch-ama',
     ];
     $templateAssets = [
-        'whats-new-logo.svg',
         'cloud-bill-logo.svg',
         'cloud-ama-logo.svg',
-        'nightwatch-logo-mark.svg',
     ];
     $fontAssets = [
         'instrument-sans-latin.woff2',
         'instrument-sans-latin-ext.woff2',
-        'instrument-serif-italic-latin.woff2',
-        'instrument-serif-italic-latin-ext.woff2',
-        'instrument-serif-regular-latin.woff2',
-        'instrument-serif-regular-latin-ext.woff2',
-        'rajdhani-medium-latin.woff2',
-        'rajdhani-medium-latin-ext.woff2',
     ];
 
     expect($studioStyles)->toContain("font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;")
@@ -42,37 +28,45 @@ test('the image studio is the public main page', function (): void {
         ->toMatch('/\.artboard__copy h2\s*\{[^}]*font-size: calc\(6\.640625cqw \* var\(--headline-scale, 1\)\);/s')
         ->toMatch('/\.artboard__copy h2\s*\{[^}]*line-height: 1;/s')
         ->toMatch('/\.artboard__copy h2\s*\{[^}]*letter-spacing: 0;/s')
+        ->toMatch("/font-feature-settings:\\s*'ss02' 1,\\s*'ss04' 1,\\s*'ss05' 1;/s")
+        ->toContain('--studio-accent: #0057ff;')
+        ->toContain('--studio-ink: #11181c;')
         ->toContain("url('/img/laravel-cloud-background.png')")
         ->toContain('.artboard__safe-area--mobile')
         ->toContain('right: 3.203125%;')
         ->toContain('width: 7.8125%;')
         ->toContain('height: 59.305556%;')
-        ->toContain("font-family: 'Instrument Serif', ui-serif, Georgia, serif;")
-        ->toContain("font-family: 'Rajdhani', ui-sans-serif, system-ui, sans-serif;")
         ->toContain("url('/fonts/instrument-sans-latin.woff2') format('woff2')")
-        ->toContain("url('/fonts/instrument-serif-italic-latin.woff2') format('woff2')")
-        ->toContain("url('/fonts/rajdhani-medium-latin.woff2') format('woff2')")
-        ->toContain('.artboard--whats-new .artboard__copy')
+        ->not->toContain("font-family: 'Instrument Serif'")
+        ->not->toContain("font-family: 'Rajdhani'")
+        ->not->toContain('laravel-cloud-og-background.png')
+        ->not->toContain('laravel-og-background.png')
         ->toContain('.artboard--starter-kits .artboard__template-word')
+        ->toContain('.artboard--cloud-bill .artboard__copy')
         ->toContain('.artboard--cloud-ama .artboard__headline-row')
-        ->toContain('.artboard--nightwatch-ama .artboard__eyebrow')
-        ->toContain('.artboard--person-text .artboard__copy')
-        ->toContain('.artboard--person-code .artboard__copy')
+        ->not->toContain('.artboard--whats-new')
+        ->not->toContain('.artboard--nightwatch-ama')
+        ->not->toContain('.artboard--person-text')
+        ->not->toContain('.artboard--person-code')
         ->not->toContain('.artboard--cloud-comparison')
         ->not->toContain('.artboard__rule')
-        ->and($studioScript)->toContain("'whats-new': {")
-        ->toContain("'cloud-bill': {")
+        ->and($studioScript)->toContain("'cloud-bill': {")
         ->toContain("'starter-kits': {")
         ->toContain("'cloud-ama': {")
-        ->toContain("'nightwatch-ama': {")
-        ->toContain("'person-text': {")
-        ->toContain("'person-code': {")
-        ->toContain("label: 'Nightwatch'")
+        ->toContain("label: 'Announcement'")
+        ->toContain("label: 'Product'")
+        ->toContain("label: 'Interview'")
+        ->not->toContain("'whats-new': {")
+        ->not->toContain("'nightwatch-ama': {")
+        ->not->toContain("'person-text': {")
+        ->not->toContain("'person-code': {")
         ->not->toContain("'cloud-comparison': {")
-        ->toContain("figmaNode: '5:9008'")
-        ->toContain("figmaNode: '35:244539'")
-        ->toContain("fontLabel: 'Instrument Serif + Sans SemiCondensed'")
-        ->toContain("fontLabel: 'Rajdhani Medium'")
+        ->toContain("figmaNode: '5:272000'")
+        ->toContain("figmaNode: '27:217728'")
+        ->toContain("figmaNode: '27:218797'")
+        ->toContain("fontLabel: 'Instrument Sans Medium'")
+        ->not->toContain('Open Graph')
+        ->not->toContain("format: 'thumbnail'")
         ->toContain('resetTemplate()')
         ->toContain('template reset to its defaults')
         ->toContain('sanitizeExportClone(clone)')
@@ -81,31 +75,17 @@ test('the image studio is the public main page', function (): void {
         ->toContain('data-image-studio-export-canvas')
         ->toContain('exportCanvas?.remove()')
         ->toContain('exportScale: 2')
-        ->toContain('exportScale: 1')
+        ->not->toContain('exportScale: 1')
         ->toContain('scale: this.selectedFormat.exportScale')
         ->toContain('get exportWidth()')
         ->toContain('get exportHeight()')
         ->toContain('onCloneEachNode: (clone) => this.sanitizeExportClone(clone)')
-        ->and(public_path('img/laravel-cloud-logo.png'))->toBeFile()
-        ->and($cloudLogo)->not->toBeFalse()
-        ->and($cloudLogo[0])->toBe(350)
-        ->and($cloudLogo[1])->toBe(36)
         ->and(public_path('img/laravel-cloud-background.png'))->toBeFile()
         ->and($cloudBackground)->not->toBeFalse()
         ->and($cloudBackground[0])->toBe(1280)
         ->and($cloudBackground[1])->toBe(720)
-        ->and(public_path('img/laravel-cloud-og-background.png'))->toBeFile()
-        ->and($cloudOpenGraphBackground)->not->toBeFalse()
-        ->and($cloudOpenGraphBackground[0])->toBe(1200)
-        ->and($cloudOpenGraphBackground[1])->toBe(630)
-        ->and(public_path('img/laravel-logo.png'))->toBeFile()
-        ->and($laravelLogo)->not->toBeFalse()
-        ->and($laravelLogo[0])->toBe(184)
-        ->and($laravelLogo[1])->toBe(46)
-        ->and(public_path('img/laravel-og-background.png'))->toBeFile()
-        ->and($laravelOpenGraphBackground)->not->toBeFalse()
-        ->and($laravelOpenGraphBackground[0])->toBe(1800)
-        ->and($laravelOpenGraphBackground[1])->toBe(945);
+        ->and(public_path('img/laravel-cloud-og-background.png'))->not->toBeFile()
+        ->and(public_path('img/laravel-og-background.png'))->not->toBeFile();
 
     foreach ($templatePreviews as $templatePreview) {
         $previewPath = public_path("img/youtube-templates/{$templatePreview}-preview.png");
@@ -128,19 +108,22 @@ test('the image studio is the public main page', function (): void {
     get(route('dashboard'))
         ->assertSuccessful()
         ->assertSee('Create share-ready graphics.')
-        ->assertSee('Laravel Cloud')
-        ->assertSee('Figma')
-        ->assertSee("What's New", false)
-        ->assertSee('Cloud Bill')
-        ->assertSee('Starter Kits')
-        ->assertSee('Cloud AMA')
-        ->assertSee('Nightwatch')
-        ->assertSee('Person + text')
-        ->assertSee('Person + code')
+        ->assertSee('3 essentials')
+        ->assertSee('Choose the content shape. Each layout keeps its approved Figma composition.')
+        ->assertSee('Announcement')
+        ->assertSee('Product')
+        ->assertSee('Interview')
+        ->assertDontSee('Open Graph')
+        ->assertDontSee("What's New", false)
+        ->assertDontSee('Nightwatch')
+        ->assertDontSee('Person + text')
+        ->assertDontSee('Person + code')
         ->assertDontSee('Cloud vs Vapor')
         ->assertDontSee('Nightwatch AMA')
-        ->assertSee('data-figma-node="5:9008"', false)
-        ->assertSee('data-figma-node="35:244539"', false)
+        ->assertSee('data-figma-node="5:272000"', false)
+        ->assertSee('data-figma-node="27:217728"', false)
+        ->assertSee('data-figma-node="27:218797"', false)
+        ->assertDontSee('data-format=', false)
         ->assertSee('Reset template')
         ->assertSee('Safe areas')
         ->assertSee('Mobile UI')
@@ -169,8 +152,8 @@ test('the image studio is the public main page', function (): void {
         ->assertSee('data-upload-dropzone="background"', false)
         ->assertSee('data-upload-dropzone="images"', false)
         ->assertSee('data-flux-file-upload', false)
-        ->assertSee('/img/laravel-cloud-logo.png', false)
-        ->assertSee('/img/laravel-logo.png', false)
+        ->assertDontSee('/img/laravel-cloud-og-background.png', false)
+        ->assertDontSee('/img/laravel-og-background.png', false)
         ->assertDontSee('/img/youtube-templates/cloud-bill-product.png', false)
         ->assertDontSee('/img/youtube-templates/starter-dashboard.png', false)
         ->assertDontSee('/img/youtube-templates/starter-register.png', false)

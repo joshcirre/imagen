@@ -1,124 +1,54 @@
 import { domToPng } from 'modern-screenshot';
 
-const formats = {
-    thumbnail: {
-        label: 'Thumbnail',
-        width: 1280,
-        height: 720,
-        exportScale: 2,
-    },
-    og: {
-        label: 'Open Graph',
-        width: 1200,
-        height: 630,
-        exportScale: 1,
-    },
+const thumbnailFormat = {
+    label: 'YouTube thumbnail',
+    width: 1280,
+    height: 720,
+    exportScale: 2,
 };
 
 const thumbnailTemplates = {
-    'whats-new': {
-        label: "What's New",
-        brand: 'laravel',
-        figmaNode: '5:9008',
-        fontLabel: 'Instrument Serif + Sans SemiCondensed',
-        logo: '/img/youtube-templates/whats-new-logo.svg',
-        alignment: 'left',
-        headlineSize: 100,
-        eyebrow: "WHAT'S NEW",
-        title: 'FLUENT\nNUMERIC',
-        supportingText: '',
-        slotLabel: 'Add person cutout',
-        imageSlots: [{ x: 78, y: 58, size: 48, rotation: 0, layer: 'above' }],
-    },
-    'cloud-bill': {
-        label: 'Cloud Bill',
-        brand: 'cloud',
-        figmaNode: '5:272000',
-        fontLabel: 'Instrument Sans Medium',
-        logo: '/img/youtube-templates/cloud-bill-logo.svg',
-        alignment: 'left',
-        headlineSize: 100,
-        eyebrow: '5 tools to estimate',
-        title: 'your Laravel Cloud bill',
-        supportingText: '',
-        slotLabel: 'Add supporting image',
-        imageSlots: [{ x: 76, y: 38, size: 42, rotation: -8, layer: 'behind' }],
-    },
     'starter-kits': {
-        label: 'Starter Kits',
+        label: 'Announcement',
         brand: 'laravel',
         figmaNode: '27:217728',
         fontLabel: 'Instrument Sans Medium',
         logo: null,
         alignment: 'left',
         headlineSize: 100,
-        eyebrow: 'Introducing the new',
-        title: 'Starter Kits',
+        eyebrow: 'Introducing',
+        title: 'A better way to ship Laravel',
         supportingText: '',
-        slotLabel: 'Add person cutout',
+        slotLabel: 'Add a focused image',
         imageSlots: [{ x: 84, y: 55, size: 55, rotation: 0, layer: 'above' }],
     },
+    'cloud-bill': {
+        label: 'Product',
+        brand: 'cloud',
+        figmaNode: '5:272000',
+        fontLabel: 'Instrument Sans Medium',
+        logo: '/img/youtube-templates/cloud-bill-logo.svg',
+        alignment: 'left',
+        headlineSize: 100,
+        eyebrow: 'Product deep dive',
+        title: 'See your Laravel app clearly',
+        supportingText: '',
+        slotLabel: 'Add focused product image',
+        imageSlots: [{ x: 76, y: 38, size: 42, rotation: -8, layer: 'behind' }],
+    },
     'cloud-ama': {
-        label: 'Cloud AMA',
+        label: 'Interview',
         brand: 'cloud',
         figmaNode: '27:218797',
         fontLabel: 'Instrument Sans Medium',
         logo: '/img/youtube-templates/cloud-ama-logo.svg',
         alignment: 'left',
         headlineSize: 100,
-        eyebrow: 'Ask me anything',
-        title: 'Joe Dixon',
+        eyebrow: 'In conversation',
+        title: 'Guest name',
         supportingText: 'with',
         slotLabel: 'Add guest cutout',
         imageSlots: [{ x: 94, y: 66, size: 56, rotation: 0, layer: 'above' }],
-    },
-    'nightwatch-ama': {
-        label: 'Nightwatch',
-        brand: 'cloud',
-        figmaNode: '35:244539',
-        fontLabel: 'Rajdhani Medium',
-        logo: '/img/youtube-templates/nightwatch-logo-mark.svg',
-        alignment: 'left',
-        headlineSize: 100,
-        eyebrow: 'Nightwatch AMA livestream',
-        title: 'Jess Archer',
-        supportingText: 'with',
-        slotLabel: 'Add host, then guest',
-        imageSlots: [
-            { x: 84, y: 55, size: 98, rotation: 0, layer: 'above' },
-            { x: 19, y: 62, size: 13, rotation: 0, layer: 'above' },
-        ],
-    },
-    'person-text': {
-        label: 'Person + text',
-        brand: null,
-        fontLabel: 'Instrument Sans Regular',
-        logo: null,
-        usesBrandLogo: true,
-        alignment: 'left',
-        headlineSize: 100,
-        eyebrow: '',
-        title: 'Ship Laravel without\nthe server stress.',
-        supportingText: '',
-        slotLabel: 'Add person',
-        imageSlots: [{ x: 78, y: 58, size: 52, rotation: 0, layer: 'above' }],
-    },
-    'person-code': {
-        label: 'Person + code',
-        brand: null,
-        fontLabel: 'Instrument Sans Regular',
-        logo: null,
-        usesBrandLogo: true,
-        alignment: 'left',
-        headlineSize: 92,
-        eyebrow: '',
-        title: 'Ship Laravel without\nthe server stress.',
-        supportingText: '',
-        slotLabel: 'Add person, then code',
-        imageSlots: [
-            { x: 78, y: 57, size: 48, rotation: 0, layer: 'above' },
-            { x: 54, y: 72, size: 42, rotation: -2, layer: 'behind' },
-        ],
     },
 };
 
@@ -127,11 +57,10 @@ const templates = Object.keys(thumbnailTemplates);
 document.addEventListener('alpine:init', () => {
     window.Alpine.data('imageStudio', () => ({
         brand: 'laravel',
-        format: 'thumbnail',
-        template: 'whats-new',
+        template: 'starter-kits',
         alignment: 'left',
-        eyebrow: "WHAT'S NEW",
-        title: 'FLUENT\nNUMERIC',
+        eyebrow: 'Introducing',
+        title: 'A better way to ship Laravel',
         supportingText: '',
         headlineSize: 100,
         backgroundImage: null,
@@ -159,7 +88,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         get selectedFormat() {
-            return formats[this.format];
+            return thumbnailFormat;
         },
 
         get formatDescription() {
@@ -183,19 +112,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         get brandLogo() {
-            if (this.format === 'thumbnail') {
-                if (this.activeTemplate.usesBrandLogo) {
-                    return this.brand === 'cloud' ? '/img/laravel-cloud-logo.png' : '/img/laravel.svg';
-                }
-
-                return this.activeTemplate.logo;
-            }
-
-            if (this.brand === 'cloud') {
-                return '/img/laravel-cloud-logo.png';
-            }
-
-            return this.format === 'og' ? '/img/laravel-logo.png' : '/img/laravel.svg';
+            return this.activeTemplate.logo;
         },
 
         get activeTemplate() {
@@ -207,22 +124,22 @@ document.addEventListener('alpine:init', () => {
         },
 
         get copyFontLabel() {
-            return this.format === 'thumbnail' ? this.activeTemplate.fontLabel : 'Instrument Sans';
+            return this.activeTemplate.fontLabel;
         },
 
         get hasEyebrow() {
-            return this.format === 'thumbnail' && this.activeTemplate.eyebrow !== '';
+            return this.activeTemplate.eyebrow !== '';
         },
 
         get hasSupportingText() {
-            return this.format === 'thumbnail' && this.activeTemplate.supportingText !== '';
+            return this.activeTemplate.supportingText !== '';
         },
 
         get artboardClassNames() {
             return [
                 `artboard--${this.brand}`,
                 `artboard--${this.template}`,
-                `artboard--${this.format}`,
+                'artboard--thumbnail',
                 this.backgroundImage ? 'artboard--custom-background' : '',
                 this.isExporting ? 'is-exporting' : '',
             ];
@@ -262,19 +179,6 @@ document.addEventListener('alpine:init', () => {
 
         get savedImageCount() {
             return this.imageLibrary.filter((imageLayer) => imageLayer.isSaved).length;
-        },
-
-        selectBrand(event) {
-            this.brand = event.currentTarget.dataset.brand;
-            this.resetLogoLayer();
-            this.statusMessage = `${this.brandName} brand system applied.`;
-        },
-
-        selectFormat(event) {
-            this.format = event.currentTarget.dataset.format;
-            this.resetCopyPosition();
-            this.resetLogoLayer();
-            this.statusMessage = `${this.selectedFormat.label} canvas ready.`;
         },
 
         selectTemplate(event) {
@@ -935,13 +839,13 @@ document.addEventListener('alpine:init', () => {
                         maxWidth: 'none',
                         maxHeight: 'none',
                     },
-                    backgroundColor: this.format === 'og' ? '#ffffff' : this.brand === 'cloud' ? '#0927c9' : '#f72b1c',
+                    backgroundColor: this.brand === 'cloud' ? '#0927c9' : '#f72b1c',
                     onCloneEachNode: (clone) => this.sanitizeExportClone(clone),
                     filter: (node) => !(node instanceof Element && node.hasAttribute('data-export-ignore')),
                 });
 
                 const link = document.createElement('a');
-                link.download = `${this.slugify(this.title)}-${this.format}.png`;
+                link.download = `${this.slugify(this.title)}-thumbnail.png`;
                 link.href = dataUrl;
                 link.click();
                 this.statusMessage = `${this.exportWidth} × ${this.exportHeight} PNG exported.`;
