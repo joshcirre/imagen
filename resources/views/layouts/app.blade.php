@@ -11,7 +11,7 @@
         @fluxAppearance
     </head>
 
-    <body class="h-dvh overflow-hidden bg-white dark:bg-zinc-800">
+    <body class="h-dvh overflow-hidden bg-white antialiased dark:bg-zinc-950">
         {{ $slot }}
 
         @persist('toast')
