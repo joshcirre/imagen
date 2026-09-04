@@ -4,6 +4,7 @@ Before planning or editing, find the row whose globs match the file's path and r
 
 | Applies to | Rule file |
 | --- | --- |
+| resources/{js/image-studio.js,css/app.css,views/components/image-studio.blade.php} | .ai/rules/components.md |
 | {app/Http/Controllers/SharedImageController.php,resources/{js,views}/**} | .ai/rules/controllersjsviews.md |
 | resources/{css,js,views}/** | .ai/rules/cssjsviews.md |
 | public/fonts/**, resources/{css,js,views}/** | .ai/rules/fontscssjsviews.md |

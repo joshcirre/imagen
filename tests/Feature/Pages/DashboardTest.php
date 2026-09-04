@@ -14,16 +14,35 @@ test('the image studio is the public main page', function (): void {
         'starter-kits',
         'cloud-ama',
         'laravel-cloud-youtube',
+        'whats-new',
+        'nightwatch-ama',
+        'cloud-comparison',
     ];
     $templateAssets = [
         'cloud-bill-logo.svg',
         'cloud-ama-logo.svg',
         'laravel-cloud-youtube-background.png',
         'laravel-cloud-youtube-logo.svg',
+        'whats-new-logo.svg',
+        'nightwatch-logo-mark.svg',
+        'nightwatch-dashboard.png',
+        'nightwatch-gradient.png',
+        'comparison-logo.svg',
+        'comparison-cloud-mark.svg',
+        'comparison-cloud-ui.png',
+        'comparison-vapor-mark.svg',
+        'comparison-vapor-ui.png',
+        'comparison-vs.svg',
     ];
     $fontAssets = [
         'instrument-sans-latin.woff2',
         'instrument-sans-latin-ext.woff2',
+        'instrument-serif-italic-latin.woff2',
+        'instrument-serif-italic-latin-ext.woff2',
+        'instrument-serif-regular-latin.woff2',
+        'instrument-serif-regular-latin-ext.woff2',
+        'rajdhani-medium-latin.woff2',
+        'rajdhani-medium-latin-ext.woff2',
     ];
 
     expect($studioStyles)->toContain("font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;")
@@ -41,48 +60,64 @@ test('the image studio is the public main page', function (): void {
         ->toContain('width: 7.8125%;')
         ->toContain('height: 59.305556%;')
         ->toContain("url('/fonts/instrument-sans-latin.woff2') format('woff2')")
-        ->not->toContain("font-family: 'Instrument Serif'")
-        ->not->toContain("font-family: 'Rajdhani'")
+        ->toContain("font-family: 'Instrument Serif'")
+        ->toContain("font-family: 'Rajdhani'")
         ->not->toContain('laravel-cloud-og-background.png')
         ->not->toContain('laravel-og-background.png')
         ->toContain('.artboard--starter-kits .artboard__template-word')
         ->toContain('.artboard--cloud-bill .artboard__copy')
         ->toContain('.artboard--cloud-ama .artboard__headline-row')
         ->toContain('.template-art--laravel-cloud-youtube')
+        ->toContain('.template-art--whats-new')
+        ->toContain('.template-art--nightwatch')
+        ->toContain('.template-art--cloud-comparison')
         ->toContain("url('/img/youtube-templates/laravel-cloud-youtube-background.png')")
         ->toMatch('/\.artboard--laravel-cloud-youtube \.artboard__copy h2\s*\{[^}]*font-size: calc\(10cqw \* var\(--headline-scale, 1\)\);/s')
         ->toMatch('/\.artboard--laravel-cloud-youtube \.artboard__copy h2\s*\{[^}]*font-weight: 700;/s')
         ->toMatch('/\.artboard--laravel-cloud-youtube \.artboard__copy h2\s*\{[^}]*font-stretch: 75%;/s')
         ->toMatch('/\.artboard--laravel-cloud-youtube \.artboard__copy h2\s*\{[^}]*letter-spacing: -0\.390625cqw;/s')
-        ->not->toContain('.artboard--whats-new')
-        ->not->toContain('.artboard--nightwatch-ama')
+        ->toContain('.artboard--whats-new')
+        ->toContain('.artboard--nightwatch-ama')
         ->not->toContain('.artboard--person-text')
         ->not->toContain('.artboard--person-code')
-        ->not->toContain('.artboard--cloud-comparison')
+        ->toContain('.artboard--cloud-comparison')
+        ->toContain('.artboard--font-serif .artboard__copy h2')
+        ->toContain('.artboard--font-rajdhani .artboard__copy h2')
+        ->toMatch('/\.artboard__eyebrow,\s*\.artboard__supporting,\s*\.artboard__template-word,\s*\.artboard__copy h2\s*\{[^}]*white-space: pre-line !important;/s')
         ->not->toContain('.artboard__rule')
         ->and($studioScript)->toContain("'cloud-bill': {")
         ->toContain("'starter-kits': {")
         ->toContain("'cloud-ama': {")
         ->toContain("'laravel-cloud-youtube': {")
+        ->toContain("'whats-new': {")
+        ->toContain("'nightwatch-ama': {")
+        ->toContain("'cloud-comparison': {")
         ->toContain("label: 'Announcement'")
         ->toContain("label: 'Product'")
         ->toContain("label: 'Interview'")
         ->toContain("label: 'Cloud'")
-        ->not->toContain("'whats-new': {")
-        ->not->toContain("'nightwatch-ama': {")
+        ->toContain('label: "What\'s New"')
+        ->toContain("label: 'Nightwatch'")
+        ->toContain("label: 'Cloud vs Vapor'")
         ->not->toContain("'person-text': {")
         ->not->toContain("'person-code': {")
-        ->not->toContain("'cloud-comparison': {")
         ->toContain("figmaNode: '5:272000'")
         ->toContain("figmaNode: '27:217728'")
         ->toContain("figmaNode: '27:218797'")
         ->toContain("figmaNode: '4070:370825'")
-        ->toContain("fontLabel: 'Instrument Sans Medium'")
-        ->toContain("fontLabel: 'Instrument Sans Condensed Bold'")
+        ->toContain("figmaNode: '5:9008'")
+        ->toContain("figmaNode: '35:244539'")
+        ->toContain("figmaNode: '28:220441'")
+        ->toContain("fontPreset: 'condensed'")
+        ->toContain("fontPreset: 'rajdhani'")
         ->toContain("logo: '/img/youtube-templates/laravel-cloud-youtube-logo.svg'")
+        ->toContain("laravel: '/img/laravel-logo.png'")
+        ->toContain("cloud: '/img/laravel-cloud-logo.png'")
         ->not->toContain('Open Graph')
         ->not->toContain("format: 'thumbnail'")
         ->toContain('resetTemplate()')
+        ->toContain('useBackgroundOnly()')
+        ->toContain("this.logoChoice = 'none'")
         ->toContain('template reset to its defaults')
         ->toContain('sanitizeExportClone(clone)')
         ->toContain("attributeName.startsWith('x-')")
@@ -125,27 +160,31 @@ test('the image studio is the public main page', function (): void {
 
     get(route('dashboard'))
         ->assertSuccessful()
-        ->assertSee('Create share-ready graphics.')
-        ->assertSee('4 essentials')
-        ->assertSee('Choose the content shape. Each layout keeps its approved Figma composition.')
+        ->assertSee('Thumbnail Studio')
+        ->assertSee('7 templates')
+        ->assertSee('Approved Figma compositions with editable copy, logos, fonts, and image layers.')
         ->assertSee('Announcement')
         ->assertSee('Product')
         ->assertSee('Interview')
         ->assertSee('Cloud')
         ->assertDontSee('Open Graph')
-        ->assertDontSee("What's New", false)
-        ->assertDontSee('Nightwatch')
+        ->assertSee("What's New", false)
+        ->assertSee('Nightwatch')
         ->assertDontSee('Person + text')
         ->assertDontSee('Person + code')
-        ->assertDontSee('Cloud vs Vapor')
+        ->assertSee('Cloud vs Vapor')
         ->assertDontSee('Nightwatch AMA')
         ->assertSee('data-figma-node="5:272000"', false)
         ->assertSee('data-figma-node="27:217728"', false)
         ->assertSee('data-figma-node="27:218797"', false)
         ->assertSee('data-figma-node="4070:370825"', false)
+        ->assertSee('data-figma-node="5:9008"', false)
+        ->assertSee('data-figma-node="35:244539"', false)
+        ->assertSee('data-figma-node="28:220441"', false)
         ->assertSee('/img/youtube-templates/laravel-cloud-youtube-preview.png', false)
         ->assertDontSee('data-format=', false)
-        ->assertSee('Reset template')
+        ->assertSee('Use background only')
+        ->assertSee('Reset defaults')
         ->assertSee('Safe areas')
         ->assertSee('Mobile UI')
         ->assertSee('Time')
@@ -168,6 +207,13 @@ test('the image studio is the public main page', function (): void {
         ->assertSee('x-bind:style="logoStyle"', false)
         ->assertSee('aria-label="Logo scale"', false)
         ->assertSee('Reset logo')
+        ->assertSee('Template logo')
+        ->assertSee('No logo')
+        ->assertSee('Headline font')
+        ->assertSee('Instrument Sans Condensed')
+        ->assertSee('Instrument Serif')
+        ->assertSee('Rajdhani')
+        ->assertSee('Press Enter to add a line break.')
         ->assertSee('Reset headline position')
         ->assertSee('x-bind:style="artboardStyle"', false)
         ->assertSee('data-upload-dropzone="background"', false)

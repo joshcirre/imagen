@@ -9,18 +9,21 @@
     x-on:pointercancel.window="stopPointer"
 >
     <header class="studio-heading">
-        <div>
-            <p class="studio-kicker">Image studio</p>
-            <h1>Create share-ready graphics.</h1>
-            <p>Brand-safe templates, flexible image layers, and fast layout variations.</p>
+        <div class="studio-heading__identity">
+            <img src="/img/laravel-cloud-logo.png" alt="Laravel Cloud" />
+            <span aria-hidden="true"></span>
+            <div>
+                <p class="studio-kicker">Design tools</p>
+                <h1>Thumbnail Studio</h1>
+            </div>
         </div>
 
         <div class="studio-actions">
-            <flux:button size="sm" icon="sparkles" x-on:click="generateVariation">Generate layout</flux:button>
+            <flux:button size="sm" variant="ghost" icon="sparkles" x-on:click="generateVariation">Try another layout</flux:button>
             <flux:button
                 size="sm"
                 variant="primary"
-                color="zinc"
+                color="blue"
                 icon="arrow-down-tray"
                 aria-label="Export PNG"
                 x-on:click="exportPng"
@@ -35,11 +38,11 @@
         <aside class="studio-panel studio-panel--library" aria-label="Brand and template library">
             <div class="studio-panel__section">
                 <div class="studio-panel__heading">
-                    <span>Template</span>
-                    <span class="studio-panel__meta">4 essentials</span>
+                    <span>Starting points</span>
+                    <span class="studio-panel__meta">7 templates</span>
                 </div>
 
-                <p class="studio-panel__hint">Choose the content shape. Each layout keeps its approved Figma composition.</p>
+                <p class="studio-panel__hint">Approved Figma compositions with editable copy, logos, fonts, and image layers.</p>
 
                 <div class="template-grid">
                     <button
@@ -82,10 +85,41 @@
                         <img class="template-preview" src="/img/youtube-templates/laravel-cloud-youtube-preview.png" alt="" />
                         <span>Cloud</span>
                     </button>
+                    <button
+                        type="button"
+                        data-template="whats-new"
+                        data-figma-node="5:9008"
+                        x-on:click="selectTemplate"
+                        x-bind:aria-pressed="template === 'whats-new'"
+                    >
+                        <img class="template-preview" src="/img/youtube-templates/whats-new-preview.png" alt="" />
+                        <span>What's New</span>
+                    </button>
+                    <button
+                        type="button"
+                        data-template="nightwatch-ama"
+                        data-figma-node="35:244539"
+                        x-on:click="selectTemplate"
+                        x-bind:aria-pressed="template === 'nightwatch-ama'"
+                    >
+                        <img class="template-preview" src="/img/youtube-templates/nightwatch-ama-preview.png" alt="" />
+                        <span>Nightwatch</span>
+                    </button>
+                    <button
+                        type="button"
+                        data-template="cloud-comparison"
+                        data-figma-node="28:220441"
+                        x-on:click="selectTemplate"
+                        x-bind:aria-pressed="template === 'cloud-comparison'"
+                    >
+                        <img class="template-preview" src="/img/youtube-templates/cloud-comparison-preview.png" alt="" />
+                        <span>Cloud vs Vapor</span>
+                    </button>
                 </div>
 
                 <div class="template-actions">
-                    <flux:button size="xs" variant="ghost" icon="arrow-path" x-on:click="resetTemplate">Reset template</flux:button>
+                    <flux:button size="xs" icon="document" x-on:click="useBackgroundOnly">Use background only</flux:button>
+                    <flux:button size="xs" variant="ghost" icon="arrow-path" x-on:click="resetTemplate">Reset defaults</flux:button>
                     <flux:button
                         size="xs"
                         variant="ghost"
@@ -145,10 +179,26 @@
                     <div class="artboard__flare artboard__flare--two"></div>
 
                     <div class="artboard__template-art" aria-hidden="true">
+                        <div class="template-art template-art--whats-new" x-show="template === 'whats-new'">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
                         <div class="template-art template-art--cloud-bill" x-show="template === 'cloud-bill'"></div>
                         <div class="template-art template-art--starter-kits" x-show="template === 'starter-kits'"></div>
                         <div class="template-art template-art--cloud-ama" x-show="template === 'cloud-ama'"></div>
                         <div class="template-art template-art--laravel-cloud-youtube" x-show="template === 'laravel-cloud-youtube'"></div>
+                        <div class="template-art template-art--nightwatch" x-show="template === 'nightwatch-ama'"></div>
+                        <div class="template-art template-art--cloud-comparison" x-show="template === 'cloud-comparison'">
+                            <img class="comparison-art comparison-art--cloud-mark" src="/img/youtube-templates/comparison-cloud-mark.svg" alt="" />
+                            <img class="comparison-art comparison-art--cloud-ui" src="/img/youtube-templates/comparison-cloud-ui.png" alt="" />
+                            <img class="comparison-art comparison-art--vapor-mark" src="/img/youtube-templates/comparison-vapor-mark.svg" alt="" />
+                            <img class="comparison-art comparison-art--vapor-ui" src="/img/youtube-templates/comparison-vapor-ui.png" alt="" />
+                            <i></i>
+                        </div>
                     </div>
 
                     <div class="artboard__safe-areas" x-show="showSafeAreas" data-export-ignore aria-hidden="true">
@@ -165,6 +215,7 @@
                         x-on:pointerdown.prevent="startLogoDrag"
                     >
                         <img class="artboard__brand-logo" x-bind:src="brandLogo" alt="" draggable="false" />
+                        <span class="artboard__brand-name" x-show="logoChoice === 'template' && template === 'nightwatch-ama'">NIGHTWATCH</span>
                     </div>
 
                     <div
@@ -175,10 +226,16 @@
                         x-on:pointerdown.prevent="startCopyDrag"
                     >
                         <p class="artboard__eyebrow" x-show="hasEyebrow" x-text="eyebrow"></p>
-                        <span class="artboard__template-word" x-show="template === 'starter-kits'">Laravel</span>
+                        <span class="artboard__template-word" x-show="templateWord" x-text="templateWord"></span>
                         <div class="artboard__headline-row">
                             <p class="artboard__supporting" x-show="hasSupportingText" x-text="supportingText"></p>
                             <h2 x-bind:style="headlineStyle" x-text="title"></h2>
+                            <img
+                                class="artboard__versus"
+                                x-show="template === 'cloud-comparison' && showTemplateContent"
+                                src="/img/youtube-templates/comparison-vs.svg"
+                                alt="versus"
+                            />
                         </div>
                     </div>
 
@@ -259,15 +316,37 @@
         </main>
 
         <aside class="studio-panel studio-panel--inspector" aria-label="Design controls">
-            <div class="studio-panel__section" x-show="brandLogo">
+            <div class="studio-panel__section">
                 <div class="studio-panel__heading">
-                    <span>Logo</span>
-                    <span class="studio-panel__meta">Movable layer</span>
+                    <span>Brand</span>
+                    <span class="studio-panel__meta">Independent layers</span>
                 </div>
 
-                <p class="studio-panel__hint">Drag the logo directly on the canvas.</p>
+                <div class="studio-control-grid">
+                    <flux:field>
+                        <flux:label>Logo</flux:label>
+                        <flux:select x-model="logoChoice" size="sm">
+                            <flux:select.option value="template">Template logo</flux:select.option>
+                            <flux:select.option value="laravel">Laravel</flux:select.option>
+                            <flux:select.option value="cloud">Laravel Cloud</flux:select.option>
+                            <flux:select.option value="none">No logo</flux:select.option>
+                        </flux:select>
+                    </flux:field>
 
-                <div class="studio-range">
+                    <flux:field>
+                        <flux:label>Headline font</flux:label>
+                        <flux:select x-model="fontPreset" size="sm">
+                            <flux:select.option value="sans">Instrument Sans</flux:select.option>
+                            <flux:select.option value="condensed">Instrument Sans Condensed</flux:select.option>
+                            <flux:select.option value="serif">Instrument Serif</flux:select.option>
+                            <flux:select.option value="rajdhani">Rajdhani</flux:select.option>
+                        </flux:select>
+                    </flux:field>
+                </div>
+
+                <p class="studio-panel__hint" x-show="brandLogo">Drag the logo directly on the canvas.</p>
+
+                <div class="studio-range" x-show="brandLogo">
                     <span>
                         <strong>Scale</strong>
                         <output x-text="`${logoScale}%`"></output>
@@ -280,7 +359,7 @@
                     variant="ghost"
                     icon="arrow-path"
                     class="justify-self-start"
-                    x-show="logoX !== null || logoScale !== 100"
+                    x-show="brandLogo && (logoX !== null || logoScale !== 100)"
                     x-on:click="
                         resetLogoLayer()
                         statusMessage = 'Logo position and scale reset.'
@@ -296,19 +375,25 @@
                     <span class="studio-panel__meta" x-text="copyFontLabel"></span>
                 </div>
 
-                <flux:field x-show="hasEyebrow">
+                <flux:field>
                     <flux:label>Top line</flux:label>
                     <flux:textarea x-model="eyebrow" rows="2" maxlength="100" resize="none" />
+                </flux:field>
+
+                <flux:field x-show="template === 'starter-kits' || templateWord">
+                    <flux:label>Accent word</flux:label>
+                    <flux:input x-model="templateWord" maxlength="40" />
                 </flux:field>
 
                 <flux:field>
                     <flux:label>Headline</flux:label>
                     <flux:textarea x-model="title" rows="3" maxlength="120" resize="none" />
+                    <flux:description>Press Enter to add a line break.</flux:description>
                 </flux:field>
 
-                <flux:field x-show="hasSupportingText">
+                <flux:field>
                     <flux:label>Supporting line</flux:label>
-                    <flux:input x-model="supportingText" maxlength="80" />
+                    <flux:textarea x-model="supportingText" rows="2" maxlength="80" resize="none" />
                 </flux:field>
 
                 <label class="studio-range">

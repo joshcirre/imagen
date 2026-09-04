@@ -7,16 +7,30 @@ const thumbnailFormat = {
     exportScale: 2,
 };
 
+const fontPresets = {
+    sans: 'Instrument Sans',
+    condensed: 'Instrument Sans Condensed',
+    serif: 'Instrument Serif',
+    rajdhani: 'Rajdhani',
+};
+
+const logoPresets = {
+    laravel: '/img/laravel-logo.png',
+    cloud: '/img/laravel-cloud-logo.png',
+    none: null,
+};
+
 const thumbnailTemplates = {
     'starter-kits': {
         label: 'Announcement',
         brand: 'laravel',
         figmaNode: '27:217728',
-        fontLabel: 'Instrument Sans Medium',
+        fontPreset: 'sans',
         logo: null,
         alignment: 'left',
         headlineSize: 100,
         eyebrow: 'Introducing',
+        templateWord: 'Laravel',
         title: 'A better way to ship Laravel',
         supportingText: '',
         slotLabel: 'Add a focused image',
@@ -26,11 +40,12 @@ const thumbnailTemplates = {
         label: 'Product',
         brand: 'cloud',
         figmaNode: '5:272000',
-        fontLabel: 'Instrument Sans Medium',
+        fontPreset: 'sans',
         logo: '/img/youtube-templates/cloud-bill-logo.svg',
         alignment: 'left',
         headlineSize: 100,
         eyebrow: 'Product deep dive',
+        templateWord: '',
         title: 'See your Laravel app clearly',
         supportingText: '',
         slotLabel: 'Add focused product image',
@@ -40,11 +55,12 @@ const thumbnailTemplates = {
         label: 'Interview',
         brand: 'cloud',
         figmaNode: '27:218797',
-        fontLabel: 'Instrument Sans Medium',
+        fontPreset: 'sans',
         logo: '/img/youtube-templates/cloud-ama-logo.svg',
         alignment: 'left',
         headlineSize: 100,
         eyebrow: 'In conversation',
+        templateWord: '',
         title: 'Guest name',
         supportingText: 'with',
         slotLabel: 'Add guest cutout',
@@ -54,15 +70,64 @@ const thumbnailTemplates = {
         label: 'Cloud',
         brand: 'cloud',
         figmaNode: '4070:370825',
-        fontLabel: 'Instrument Sans Condensed Bold',
+        fontPreset: 'condensed',
         logo: '/img/youtube-templates/laravel-cloud-youtube-logo.svg',
         alignment: 'left',
         headlineSize: 100,
         eyebrow: '',
+        templateWord: '',
         title: 'Laravel Cloud on Stripe Projects',
         supportingText: '',
         slotLabel: 'Add presenter cutout',
         imageSlots: [{ x: 94, y: 66, size: 56, rotation: 0, layer: 'above' }],
+    },
+    'whats-new': {
+        label: "What's New",
+        brand: 'laravel',
+        figmaNode: '5:9008',
+        fontPreset: 'condensed',
+        logo: '/img/youtube-templates/whats-new-logo.svg',
+        alignment: 'left',
+        headlineSize: 100,
+        eyebrow: "WHAT'S NEW",
+        templateWord: '',
+        title: 'FLUENT\nNUMERIC',
+        supportingText: '',
+        slotLabel: 'Add presenter cutout',
+        imageSlots: [{ x: 78, y: 58, size: 48, rotation: 0, layer: 'above' }],
+    },
+    'nightwatch-ama': {
+        label: 'Nightwatch',
+        brand: 'cloud',
+        figmaNode: '35:244539',
+        fontPreset: 'rajdhani',
+        logo: '/img/youtube-templates/nightwatch-logo-mark.svg',
+        alignment: 'left',
+        headlineSize: 100,
+        eyebrow: 'Nightwatch AMA\nlivestream',
+        templateWord: '',
+        title: 'Jess Archer',
+        supportingText: 'with',
+        slotLabel: 'Add presenter and guest images',
+        imageSlots: [
+            { x: 84, y: 57, size: 48, rotation: 0, layer: 'above' },
+            { x: 16, y: 53, size: 16, rotation: 0, layer: 'above' },
+        ],
+    },
+    'cloud-comparison': {
+        label: 'Cloud vs Vapor',
+        brand: 'cloud',
+        figmaNode: '28:220441',
+        fontPreset: 'sans',
+        logo: '/img/youtube-templates/comparison-logo.svg',
+        alignment: 'center',
+        headlineSize: 100,
+        eyebrow: '',
+        templateWord: '',
+        title: 'Cloud',
+        supportingText: 'Vapor',
+        slotLabel: '',
+        imageSlots: [],
     },
 };
 
@@ -72,8 +137,11 @@ document.addEventListener('alpine:init', () => {
     window.Alpine.data('imageStudio', () => ({
         brand: 'laravel',
         template: 'starter-kits',
+        logoChoice: 'none',
+        fontPreset: 'sans',
         alignment: 'left',
         eyebrow: 'Introducing',
+        templateWord: 'Laravel',
         title: 'A better way to ship Laravel',
         supportingText: '',
         headlineSize: 100,
@@ -95,6 +163,7 @@ document.addEventListener('alpine:init', () => {
         isExporting: false,
         variationIndex: 0,
         showSafeAreas: false,
+        showTemplateContent: true,
         statusMessage: 'Ready to design.',
 
         init() {
@@ -126,7 +195,11 @@ document.addEventListener('alpine:init', () => {
         },
 
         get brandLogo() {
-            return this.activeTemplate.logo;
+            if (this.logoChoice === 'template') {
+                return this.activeTemplate.logo;
+            }
+
+            return logoPresets[this.logoChoice] ?? null;
         },
 
         get activeTemplate() {
@@ -134,25 +207,27 @@ document.addEventListener('alpine:init', () => {
         },
 
         get templateSlotLabel() {
-            return this.activeTemplate?.slotLabel ?? '';
+            return this.showTemplateContent ? (this.activeTemplate?.slotLabel ?? '') : '';
         },
 
         get copyFontLabel() {
-            return this.activeTemplate.fontLabel;
+            return fontPresets[this.fontPreset] ?? fontPresets.sans;
         },
 
         get hasEyebrow() {
-            return this.activeTemplate.eyebrow !== '';
+            return this.eyebrow.trim() !== '';
         },
 
         get hasSupportingText() {
-            return this.activeTemplate.supportingText !== '';
+            return this.supportingText.trim() !== '';
         },
 
         get artboardClassNames() {
             return [
                 `artboard--${this.brand}`,
                 `artboard--${this.template}`,
+                `artboard--font-${this.fontPreset}`,
+                `artboard--logo-${this.logoChoice}`,
                 'artboard--thumbnail',
                 this.backgroundImage ? 'artboard--custom-background' : '',
                 this.isExporting ? 'is-exporting' : '',
@@ -222,7 +297,11 @@ document.addEventListener('alpine:init', () => {
 
             this.alignment = definition.alignment;
             this.headlineSize = definition.headlineSize;
+            this.fontPreset = definition.fontPreset;
+            this.logoChoice = definition.logo ? 'template' : 'none';
+            this.showTemplateContent = true;
             this.eyebrow = definition.eyebrow;
+            this.templateWord = definition.templateWord;
             this.title = definition.title;
             this.supportingText = definition.supportingText;
             this.resetCopyPosition();
@@ -250,6 +329,18 @@ document.addEventListener('alpine:init', () => {
         resetTemplate() {
             this.applyTemplate(this.template, false);
             this.statusMessage = `${this.templateLabel(this.template)} template reset to its defaults.`;
+        },
+
+        useBackgroundOnly() {
+            this.eyebrow = '';
+            this.templateWord = '';
+            this.title = '';
+            this.supportingText = '';
+            this.logoChoice = 'none';
+            this.showTemplateContent = false;
+            this.placedImages = [];
+            this.selectedImageId = null;
+            this.statusMessage = `${this.templateLabel(this.template)} background is ready for a fresh layout.`;
         },
 
         generateVariation() {
