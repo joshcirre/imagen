@@ -12,3 +12,6 @@ Named Page 4 YouTube templates use their source-frame background, logo geometry,
 ## Do not bake content images into templates
 
 Template previews may show source artwork, but live editable canvases may pre-populate only logos. People, screenshots, product art, and other content imagery must remain empty image slots added by users.
+
+## Treat the 2026 Cloud artwork as one additive template
+Keep the existing Announcement, Product, and Interview templates and their shared movable/scalable editing controls. The 2026 YouTube zip contributes one additional Laravel Cloud template using the Blue background and on-dark logo; Dark/Light assets are not separate modes. The full Figma frame is picker/reference art only, and live canvases keep subject imagery user-supplied.

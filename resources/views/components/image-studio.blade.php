@@ -36,7 +36,7 @@
             <div class="studio-panel__section">
                 <div class="studio-panel__heading">
                     <span>Template</span>
-                    <span class="studio-panel__meta">3 essentials</span>
+                    <span class="studio-panel__meta">4 essentials</span>
                 </div>
 
                 <p class="studio-panel__hint">Choose the content shape. Each layout keeps its approved Figma composition.</p>
@@ -71,6 +71,16 @@
                     >
                         <img class="template-preview" src="/img/youtube-templates/cloud-ama-preview.png" alt="" />
                         <span>Interview</span>
+                    </button>
+                    <button
+                        type="button"
+                        data-template="laravel-cloud-youtube"
+                        data-figma-node="4070:370825"
+                        x-on:click="selectTemplate"
+                        x-bind:aria-pressed="template === 'laravel-cloud-youtube'"
+                    >
+                        <img class="template-preview" src="/img/youtube-templates/laravel-cloud-youtube-preview.png" alt="" />
+                        <span>Cloud</span>
                     </button>
                 </div>
 
@@ -138,6 +148,7 @@
                         <div class="template-art template-art--cloud-bill" x-show="template === 'cloud-bill'"></div>
                         <div class="template-art template-art--starter-kits" x-show="template === 'starter-kits'"></div>
                         <div class="template-art template-art--cloud-ama" x-show="template === 'cloud-ama'"></div>
+                        <div class="template-art template-art--laravel-cloud-youtube" x-show="template === 'laravel-cloud-youtube'"></div>
                     </div>
 
                     <div class="artboard__safe-areas" x-show="showSafeAreas" data-export-ignore aria-hidden="true">

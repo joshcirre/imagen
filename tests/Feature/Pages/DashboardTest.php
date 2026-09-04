@@ -8,14 +8,18 @@ test('the image studio is the public main page', function (): void {
     $studioStyles = file_get_contents(resource_path('css/app.css'));
     $studioScript = file_get_contents(resource_path('js/image-studio.js'));
     $cloudBackground = getimagesize(public_path('img/laravel-cloud-background.png'));
+    $cloudYoutubeBackground = getimagesize(public_path('img/youtube-templates/laravel-cloud-youtube-background.png'));
     $templatePreviews = [
         'cloud-bill',
         'starter-kits',
         'cloud-ama',
+        'laravel-cloud-youtube',
     ];
     $templateAssets = [
         'cloud-bill-logo.svg',
         'cloud-ama-logo.svg',
+        'laravel-cloud-youtube-background.png',
+        'laravel-cloud-youtube-logo.svg',
     ];
     $fontAssets = [
         'instrument-sans-latin.woff2',
@@ -44,6 +48,12 @@ test('the image studio is the public main page', function (): void {
         ->toContain('.artboard--starter-kits .artboard__template-word')
         ->toContain('.artboard--cloud-bill .artboard__copy')
         ->toContain('.artboard--cloud-ama .artboard__headline-row')
+        ->toContain('.template-art--laravel-cloud-youtube')
+        ->toContain("url('/img/youtube-templates/laravel-cloud-youtube-background.png')")
+        ->toMatch('/\.artboard--laravel-cloud-youtube \.artboard__copy h2\s*\{[^}]*font-size: calc\(10cqw \* var\(--headline-scale, 1\)\);/s')
+        ->toMatch('/\.artboard--laravel-cloud-youtube \.artboard__copy h2\s*\{[^}]*font-weight: 700;/s')
+        ->toMatch('/\.artboard--laravel-cloud-youtube \.artboard__copy h2\s*\{[^}]*font-stretch: 75%;/s')
+        ->toMatch('/\.artboard--laravel-cloud-youtube \.artboard__copy h2\s*\{[^}]*letter-spacing: -0\.390625cqw;/s')
         ->not->toContain('.artboard--whats-new')
         ->not->toContain('.artboard--nightwatch-ama')
         ->not->toContain('.artboard--person-text')
@@ -53,9 +63,11 @@ test('the image studio is the public main page', function (): void {
         ->and($studioScript)->toContain("'cloud-bill': {")
         ->toContain("'starter-kits': {")
         ->toContain("'cloud-ama': {")
+        ->toContain("'laravel-cloud-youtube': {")
         ->toContain("label: 'Announcement'")
         ->toContain("label: 'Product'")
         ->toContain("label: 'Interview'")
+        ->toContain("label: 'Cloud'")
         ->not->toContain("'whats-new': {")
         ->not->toContain("'nightwatch-ama': {")
         ->not->toContain("'person-text': {")
@@ -64,7 +76,10 @@ test('the image studio is the public main page', function (): void {
         ->toContain("figmaNode: '5:272000'")
         ->toContain("figmaNode: '27:217728'")
         ->toContain("figmaNode: '27:218797'")
+        ->toContain("figmaNode: '4070:370825'")
         ->toContain("fontLabel: 'Instrument Sans Medium'")
+        ->toContain("fontLabel: 'Instrument Sans Condensed Bold'")
+        ->toContain("logo: '/img/youtube-templates/laravel-cloud-youtube-logo.svg'")
         ->not->toContain('Open Graph')
         ->not->toContain("format: 'thumbnail'")
         ->toContain('resetTemplate()')
@@ -84,6 +99,9 @@ test('the image studio is the public main page', function (): void {
         ->and($cloudBackground)->not->toBeFalse()
         ->and($cloudBackground[0])->toBe(1280)
         ->and($cloudBackground[1])->toBe(720)
+        ->and($cloudYoutubeBackground)->not->toBeFalse()
+        ->and($cloudYoutubeBackground[0])->toBe(1280)
+        ->and($cloudYoutubeBackground[1])->toBe(720)
         ->and(public_path('img/laravel-cloud-og-background.png'))->not->toBeFile()
         ->and(public_path('img/laravel-og-background.png'))->not->toBeFile();
 
@@ -108,11 +126,12 @@ test('the image studio is the public main page', function (): void {
     get(route('dashboard'))
         ->assertSuccessful()
         ->assertSee('Create share-ready graphics.')
-        ->assertSee('3 essentials')
+        ->assertSee('4 essentials')
         ->assertSee('Choose the content shape. Each layout keeps its approved Figma composition.')
         ->assertSee('Announcement')
         ->assertSee('Product')
         ->assertSee('Interview')
+        ->assertSee('Cloud')
         ->assertDontSee('Open Graph')
         ->assertDontSee("What's New", false)
         ->assertDontSee('Nightwatch')
@@ -123,6 +142,8 @@ test('the image studio is the public main page', function (): void {
         ->assertSee('data-figma-node="5:272000"', false)
         ->assertSee('data-figma-node="27:217728"', false)
         ->assertSee('data-figma-node="27:218797"', false)
+        ->assertSee('data-figma-node="4070:370825"', false)
+        ->assertSee('/img/youtube-templates/laravel-cloud-youtube-preview.png', false)
         ->assertDontSee('data-format=', false)
         ->assertSee('Reset template')
         ->assertSee('Safe areas')

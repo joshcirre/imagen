@@ -542,7 +542,8 @@
 
     .artboard--thumbnail.artboard--cloud-bill,
     .artboard--thumbnail.artboard--starter-kits,
-    .artboard--thumbnail.artboard--cloud-ama {
+    .artboard--thumbnail.artboard--cloud-ama,
+    .artboard--thumbnail.artboard--laravel-cloud-youtube {
         --artboard-ink: #fff;
     }
 
@@ -603,6 +604,14 @@
         background: linear-gradient(96deg, #000 3%, #1b0303 65%, transparent 92%);
         filter: blur(1.17cqw);
         content: '';
+    }
+
+    .artboard--laravel-cloud-youtube {
+        background: #0057ff;
+    }
+
+    .template-art--laravel-cloud-youtube {
+        background: #0057ff url('/img/youtube-templates/laravel-cloud-youtube-background.png') center / cover no-repeat;
     }
 
     .artboard__eyebrow,
@@ -750,6 +759,52 @@
         top: 0;
         right: 0;
         width: 39%;
+        height: 100%;
+    }
+
+    .artboard--laravel-cloud-youtube .artboard__brand {
+        top: 5.555556%;
+        left: 3.125%;
+    }
+
+    .artboard--laravel-cloud-youtube .artboard__brand-logo {
+        width: 20.3125cqw;
+        max-height: none;
+        filter: none;
+    }
+
+    .artboard--laravel-cloud-youtube .artboard__copy {
+        top: auto;
+        right: auto;
+        bottom: 6.666667%;
+        left: 3.125%;
+        display: flex;
+        width: 59.453125%;
+        height: 75.694444%;
+        flex-direction: column;
+        justify-content: flex-end;
+        text-align: left !important;
+    }
+
+    .artboard--laravel-cloud-youtube .artboard__copy h2 {
+        color: #f5f9ff;
+        font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+        font-size: calc(10cqw * var(--headline-scale, 1));
+        font-weight: 700;
+        font-stretch: 75%;
+        line-height: 0.875;
+        letter-spacing: -0.390625cqw;
+        text-transform: uppercase;
+        text-shadow: none;
+        text-wrap: wrap;
+        white-space: pre-line;
+        font-feature-settings: 'ss05' 1;
+    }
+
+    .artboard--laravel-cloud-youtube .artboard__image-slot {
+        top: 0;
+        right: 0;
+        width: 54.375%;
         height: 100%;
     }
 

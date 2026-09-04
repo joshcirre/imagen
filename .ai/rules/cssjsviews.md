@@ -24,3 +24,6 @@ Template headline letter spacing is 0% (`letter-spacing: 0`) across all template
 ## Offer three YouTube composition archetypes
 
 Imagen is thumbnail-only. Keep the template picker to Announcement (Starter Kits source), Product (Cloud Bill source), and Interview (Cloud AMA source). All three use Instrument Sans and preserve their Figma source geometry while presenting generic, reusable copy and focused image slots.
+
+## Keep the three archetypes and allow approved additions
+Announcement, Product, and Interview remain the core composition archetypes. Designer-approved artwork packages may add distinct editable templates without removing or changing those three; the 2026 Laravel Cloud Blue artwork is the first such addition.

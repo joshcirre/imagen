@@ -50,6 +50,20 @@ const thumbnailTemplates = {
         slotLabel: 'Add guest cutout',
         imageSlots: [{ x: 94, y: 66, size: 56, rotation: 0, layer: 'above' }],
     },
+    'laravel-cloud-youtube': {
+        label: 'Cloud',
+        brand: 'cloud',
+        figmaNode: '4070:370825',
+        fontLabel: 'Instrument Sans Condensed Bold',
+        logo: '/img/youtube-templates/laravel-cloud-youtube-logo.svg',
+        alignment: 'left',
+        headlineSize: 100,
+        eyebrow: '',
+        title: 'Laravel Cloud on Stripe Projects',
+        supportingText: '',
+        slotLabel: 'Add presenter cutout',
+        imageSlots: [{ x: 94, y: 66, size: 56, rotation: 0, layer: 'above' }],
+    },
 };
 
 const templates = Object.keys(thumbnailTemplates);
