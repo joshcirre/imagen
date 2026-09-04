@@ -1,224 +1,382 @@
 import { domToPng } from 'modern-screenshot';
 
-const thumbnailFormat = Object.freeze({
+const thumbnailFormat = {
     label: 'YouTube thumbnail',
     width: 1280,
     height: 720,
     exportScale: 2,
-});
+};
 
-const backgroundVariants = Object.freeze([
-    Object.freeze({
-        id: 'dark',
-        label: 'Dark',
-        asset: '/img/youtube-templates/youtube-bg-dark.webp',
-        logo: '/img/youtube-templates/laravel-cloud-on-dark.svg',
-        baseFill: '#00001e',
-        figmaNode: '4070:370747',
-    }),
-    Object.freeze({
-        id: 'light',
-        label: 'Light',
-        asset: '/img/youtube-templates/youtube-bg-light.webp',
-        logo: '/img/youtube-templates/laravel-cloud-on-light.svg',
-        baseFill: '#e9f3ff',
-        figmaNode: '4070:370786',
-    }),
-    Object.freeze({
-        id: 'blue',
-        label: 'Blue',
-        asset: '/img/youtube-templates/youtube-bg-blue.webp',
-        logo: '/img/youtube-templates/laravel-cloud-on-dark.svg',
-        baseFill: '#0057ff',
-        figmaNode: '4070:370825',
-    }),
-]);
+const thumbnailTemplates = {
+    'starter-kits': {
+        label: 'Announcement',
+        brand: 'laravel',
+        figmaNode: '27:217728',
+        fontLabel: 'Instrument Sans Medium',
+        logo: null,
+        alignment: 'left',
+        headlineSize: 100,
+        eyebrow: 'Introducing',
+        title: 'A better way to ship Laravel',
+        supportingText: '',
+        slotLabel: 'Add a focused image',
+        imageSlots: [{ x: 84, y: 55, size: 55, rotation: 0, layer: 'above' }],
+    },
+    'cloud-bill': {
+        label: 'Product',
+        brand: 'cloud',
+        figmaNode: '5:272000',
+        fontLabel: 'Instrument Sans Medium',
+        logo: '/img/youtube-templates/cloud-bill-logo.svg',
+        alignment: 'left',
+        headlineSize: 100,
+        eyebrow: 'Product deep dive',
+        title: 'See your Laravel app clearly',
+        supportingText: '',
+        slotLabel: 'Add focused product image',
+        imageSlots: [{ x: 76, y: 38, size: 42, rotation: -8, layer: 'behind' }],
+    },
+    'cloud-ama': {
+        label: 'Interview',
+        brand: 'cloud',
+        figmaNode: '27:218797',
+        fontLabel: 'Instrument Sans Medium',
+        logo: '/img/youtube-templates/cloud-ama-logo.svg',
+        alignment: 'left',
+        headlineSize: 100,
+        eyebrow: 'In conversation',
+        title: 'Guest name',
+        supportingText: 'with',
+        slotLabel: 'Add guest cutout',
+        imageSlots: [{ x: 94, y: 66, size: 56, rotation: 0, layer: 'above' }],
+    },
+};
 
-const subjectZoneStart = 62.578125;
-const subjectScaleLimits = Object.freeze({ min: 28, max: 72 });
+const templates = Object.keys(thumbnailTemplates);
 
 document.addEventListener('alpine:init', () => {
     window.Alpine.data('imageStudio', () => ({
-        headline: 'Ship with confidence',
-        headlineError: '',
-        headlineLineCount: 2,
-        isHeadlineMeasuring: true,
-        background: 'blue',
-        subject: {
-            type: 'person',
-            src: null,
-            name: '',
-            x: 98,
-            y: 47,
-            scale: 68,
-        },
-        isSubjectSelected: false,
+        brand: 'laravel',
+        template: 'starter-kits',
+        alignment: 'left',
+        eyebrow: 'Introducing',
+        title: 'A better way to ship Laravel',
+        supportingText: '',
+        headlineSize: 100,
+        backgroundImage: null,
+        imageLibrary: [],
+        placedImages: [],
+        selectedImageId: null,
+        selectedImageSize: 46,
+        selectedImageRotation: 0,
+        copyX: null,
+        copyY: null,
+        copyDragState: null,
+        logoX: null,
+        logoY: null,
+        logoScale: 100,
+        logoDragState: null,
         dragState: null,
         resizeState: null,
         isExporting: false,
-        statusMessage: 'Add a transparent subject or export the locked layout as-is.',
+        variationIndex: 0,
+        showSafeAreas: false,
+        statusMessage: 'Ready to design.',
 
         init() {
-            document.fonts.ready.then(async () => {
-                await document.fonts.load('700 128px "Instrument Sans Condensed"');
-                this.queueHeadlineValidation();
-            });
+            this.loadSharedImages();
         },
 
-        get activeBackground() {
-            return backgroundVariants.find((option) => option.id === this.background) ?? backgroundVariants[2];
+        get selectedFormat() {
+            return thumbnailFormat;
         },
 
-        get displayHeadline() {
-            return this.headline.toUpperCase();
+        get formatDescription() {
+            return `${this.selectedFormat.label} · ${this.selectedFormat.width} × ${this.selectedFormat.height}`;
         },
 
-        get artboardClassNames() {
-            return [`artboard--${this.background}`, this.isExporting ? 'is-exporting' : ''].filter(Boolean).join(' ');
+        get exportWidth() {
+            return this.selectedFormat.width * this.selectedFormat.exportScale;
         },
 
-        get artboardStyle() {
-            return `--artboard-ratio: ${thumbnailFormat.width / thumbnailFormat.height}; aspect-ratio: ${thumbnailFormat.width} / ${thumbnailFormat.height};`;
-        },
-
-        get subjectStyle() {
-            return `--subject-x: ${this.subject.x}%; --subject-y: ${this.subject.y}%; --subject-size: ${this.subject.scale}%;`;
-        },
-
-        get canExport() {
-            return !this.isExporting && !this.isHeadlineMeasuring && this.displayHeadline.trim() !== '' && this.headlineError === '';
+        get exportHeight() {
+            return this.selectedFormat.height * this.selectedFormat.exportScale;
         },
 
         get exportButtonLabel() {
             return this.isExporting ? 'Rendering…' : 'Export PNG';
         },
 
-        selectBackground(event) {
-            const background = event.currentTarget.dataset.background;
+        get brandName() {
+            return this.brand === 'cloud' ? 'Laravel Cloud' : 'Laravel';
+        },
 
-            if (!backgroundVariants.some((option) => option.id === background)) {
+        get brandLogo() {
+            return this.activeTemplate.logo;
+        },
+
+        get activeTemplate() {
+            return thumbnailTemplates[this.template];
+        },
+
+        get templateSlotLabel() {
+            return this.activeTemplate?.slotLabel ?? '';
+        },
+
+        get copyFontLabel() {
+            return this.activeTemplate.fontLabel;
+        },
+
+        get hasEyebrow() {
+            return this.activeTemplate.eyebrow !== '';
+        },
+
+        get hasSupportingText() {
+            return this.activeTemplate.supportingText !== '';
+        },
+
+        get artboardClassNames() {
+            return [
+                `artboard--${this.brand}`,
+                `artboard--${this.template}`,
+                'artboard--thumbnail',
+                this.backgroundImage ? 'artboard--custom-background' : '',
+                this.isExporting ? 'is-exporting' : '',
+            ];
+        },
+
+        get artboardStyle() {
+            const ratio = this.selectedFormat.width / this.selectedFormat.height;
+
+            return `--artboard-ratio: ${ratio}; aspect-ratio: ${this.selectedFormat.width} / ${this.selectedFormat.height};`;
+        },
+
+        get copyStyle() {
+            const position =
+                this.copyX === null || this.copyY === null ? '' : `left: ${this.copyX}%; top: ${this.copyY}%; right: auto; bottom: auto;`;
+
+            return `${position} text-align: ${this.alignment};`;
+        },
+
+        get headlineStyle() {
+            return `--headline-scale: ${this.headlineSize / 100};`;
+        },
+
+        get logoStyle() {
+            const position =
+                this.logoX === null || this.logoY === null ? '' : `left: ${this.logoX}%; top: ${this.logoY}%; right: auto; bottom: auto;`;
+
+            return `${position} --logo-scale: ${this.logoScale / 100};`;
+        },
+
+        get selectedImage() {
+            return this.placedImages.find((imageLayer) => imageLayer.id === this.selectedImageId) ?? null;
+        },
+
+        get reversedPlacedImages() {
+            return [...this.placedImages].reverse();
+        },
+
+        get savedImageCount() {
+            return this.imageLibrary.filter((imageLayer) => imageLayer.isSaved).length;
+        },
+
+        selectTemplate(event) {
+            this.applyTemplate(event.currentTarget.dataset.template);
+        },
+
+        selectAlignment(event) {
+            this.alignment = event.currentTarget.dataset.alignment;
+        },
+
+        templateLabel(template) {
+            return thumbnailTemplates[template]?.label ?? template;
+        },
+
+        applyTemplate(template, announce = true) {
+            const definition = thumbnailTemplates[template];
+
+            if (!definition) {
                 return;
             }
 
-            this.background = background;
-            this.statusMessage = `${this.activeBackground.label} background applied.`;
-        },
+            this.template = template;
 
-        normalizeHeadline() {
-            this.headline = this.headline.trim().replace(/[.!?,;:]+$/u, '');
-            this.queueHeadlineValidation();
-        },
+            if (definition.brand) {
+                this.brand = definition.brand;
+            }
 
-        queueHeadlineValidation() {
-            this.isHeadlineMeasuring = true;
+            this.alignment = definition.alignment;
+            this.headlineSize = definition.headlineSize;
+            this.eyebrow = definition.eyebrow;
+            this.title = definition.title;
+            this.supportingText = definition.supportingText;
+            this.resetCopyPosition();
+            this.resetLogoLayer();
 
-            this.$nextTick(() => {
-                requestAnimationFrame(() => this.validateHeadline());
+            this.placedImages.forEach((imageLayer, index) => {
+                const positions = this.imagePositionsForTemplate(index);
+                imageLayer.x = positions.x;
+                imageLayer.y = positions.y;
+                imageLayer.size = positions.size;
+                imageLayer.rotation = positions.rotation;
+                imageLayer.layer = positions.layer;
+                this.refreshImageStyle(imageLayer);
             });
+
+            if (this.selectedImage) {
+                this.loadSelectedImageControls();
+            }
+
+            if (announce) {
+                this.statusMessage = `${definition.label} thumbnail template applied.`;
+            }
         },
 
-        validateHeadline() {
-            const headline = this.displayHeadline.trim();
-            const headlineElement = this.$refs.headline;
-            let error = '';
-
-            if (headline === '') {
-                this.headlineLineCount = 0;
-                this.headlineError = 'Add a headline before exporting.';
-                this.isHeadlineMeasuring = false;
-                return;
-            }
-
-            if (headline.length > 56) {
-                error = 'Keep the headline to 56 characters or fewer.';
-            } else if (/LARAVEL\s+CLOUD/iu.test(headline)) {
-                error = 'Remove “Laravel Cloud” from the headline; the logo already says it.';
-            } else if (/[.!?,;:]$/u.test(headline)) {
-                error = 'Remove trailing punctuation.';
-            }
-
-            if (headlineElement) {
-                const range = document.createRange();
-                range.selectNodeContents(headlineElement);
-                const lineTops = new Set(
-                    [...range.getClientRects()].filter((rectangle) => rectangle.width > 0).map((rectangle) => Math.round(rectangle.top * 2) / 2)
-                );
-
-                this.headlineLineCount = lineTops.size;
-
-                if (!error && (this.headlineLineCount > 4 || headlineElement.scrollHeight > headlineElement.parentElement.clientHeight + 1)) {
-                    error = 'Shorten the headline to four lines or fewer.';
-                } else if (!error && headlineElement.scrollWidth > headlineElement.clientWidth + 1) {
-                    error = 'Shorten the longest word so it fits the copy box.';
-                }
-            }
-
-            this.headlineError = error;
-            this.isHeadlineMeasuring = false;
+        resetTemplate() {
+            this.applyTemplate(this.template, false);
+            this.statusMessage = `${this.templateLabel(this.template)} template reset to its defaults.`;
         },
 
-        async handleSubjectUpload(event) {
+        generateVariation() {
+            this.variationIndex += 1;
+            this.applyTemplate(templates[this.variationIndex % templates.length], false);
+
+            this.statusMessage = `${this.templateLabel(this.template)} variation generated.`;
+        },
+
+        imagePositionsForTemplate(index) {
+            const slot = this.activeTemplate.imageSlots[index];
+
+            if (slot) {
+                return { ...slot };
+            }
+
+            const offset = Math.min(index * 8, 24);
+
+            return { x: 78 - offset, y: 62, size: 34, rotation: index % 2 === 0 ? -2 : 2, layer: 'behind' };
+        },
+
+        async handleImageUpload(event) {
             const upload = event.currentTarget;
-            const [file] = [...(upload?.files ?? [])];
+            const files = this.filesFromUpload(upload);
+            const validFiles = files.filter((file) => ['image/png', 'image/jpeg', 'image/webp'].includes(file.type) && file.size <= 15 * 1024 * 1024);
 
-            if (!file || file.type !== 'image/png' || file.size > 15 * 1024 * 1024) {
-                this.statusMessage = 'Choose one transparent PNG under 15 MB.';
+            if (validFiles.length === 0) {
+                this.statusMessage = 'Choose PNG, JPG, or WebP image layers under 15 MB.';
                 this.resetFileInput(upload);
                 return;
             }
 
-            let hasTransparency = false;
-            let subjectSource = null;
+            const assets = await Promise.all(
+                validFiles.map(async (file) => ({
+                    id: window.crypto.randomUUID(),
+                    name: file.name.replace(/\.(png|jpe?g|webp)$/i, ''),
+                    src: await this.readFile(file),
+                    file,
+                    isSaved: false,
+                    isSaving: false,
+                }))
+            );
 
-            try {
-                subjectSource = await this.readFile(file);
-                hasTransparency = await this.imageHasTransparency(subjectSource);
-            } catch {
-                this.statusMessage = 'This PNG could not be read. Choose a different subject image.';
-                this.resetFileInput(upload);
-                return;
-            }
-
-            if (!hasTransparency) {
-                this.statusMessage = 'This PNG has no transparent background. Upload an isolated cutout.';
-                this.resetFileInput(upload);
-                return;
-            }
-
-            this.subject = {
-                type: 'person',
-                src: subjectSource,
-                name: file.name.replace(/\.png$/iu, ''),
-                x: 98,
-                y: 47,
-                scale: 68,
-            };
-            this.isSubjectSelected = true;
-            this.statusMessage = `${this.subject.name} added with the approved subject treatment.`;
+            this.imageLibrary.push(...assets);
+            this.statusMessage = `${assets.length} ${assets.length === 1 ? 'image is' : 'images are'} ready to use or save for everyone.`;
             this.resetFileInput(upload);
         },
 
-        async imageHasTransparency(source) {
-            const image = new Image();
-            image.src = source;
-            await image.decode();
+        async loadSharedImages() {
+            try {
+                const response = await fetch(this.$root.dataset.sharedImagesIndexUrl, {
+                    headers: { Accept: 'application/json' },
+                });
 
-            const scale = Math.min(1, 256 / Math.max(image.naturalWidth, image.naturalHeight));
-            const canvas = document.createElement('canvas');
-            canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
-            canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
-
-            const context = canvas.getContext('2d', { willReadFrequently: true });
-            context.drawImage(image, 0, 0, canvas.width, canvas.height);
-            const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
-
-            for (let index = 3; index < pixels.length; index += 4) {
-                if (pixels[index] < 250) {
-                    return true;
+                if (!response.ok) {
+                    throw new Error('The shared image library could not be loaded.');
                 }
+
+                const payload = await response.json();
+                const localIds = new Set(this.imageLibrary.map((imageLayer) => imageLayer.id));
+                this.imageLibrary.unshift(...payload.data.filter((imageLayer) => !localIds.has(imageLayer.id)));
+            } catch {
+                this.statusMessage = 'The shared image library is temporarily unavailable.';
+            }
+        },
+
+        async saveImage(event) {
+            const asset = this.imageLibrary.find((imageLayer) => imageLayer.id === event.currentTarget.dataset.imageId);
+
+            if (!asset || asset.isSaved || asset.isSaving || !asset.file) {
+                return;
             }
 
-            return false;
+            asset.isSaving = true;
+            const formData = new FormData();
+            formData.append('images[]', asset.file);
+
+            try {
+                const response = await fetch(this.$root.dataset.sharedImagesStoreUrl, {
+                    method: 'POST',
+                    headers: {
+                        Accept: 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+                    },
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error('The image could not be saved.');
+                }
+
+                const payload = await response.json();
+                const [savedAsset] = payload.data;
+
+                this.placedImages
+                    .filter((imageLayer) => imageLayer.assetId === asset.id)
+                    .forEach((imageLayer) => {
+                        imageLayer.src = savedAsset.src;
+                        imageLayer.name = savedAsset.name;
+                    });
+
+                asset.name = savedAsset.name;
+                asset.src = savedAsset.src;
+                asset.file = null;
+                asset.isSaved = true;
+                this.statusMessage = `${asset.name} is now shared with everyone.`;
+            } catch {
+                this.statusMessage = `${asset.name} could not be saved. Try again.`;
+            } finally {
+                asset.isSaving = false;
+            }
+        },
+
+        async handleBackgroundUpload(event) {
+            const upload = event.currentTarget;
+            const [file] = this.filesFromUpload(upload);
+
+            if (!file || !['image/png', 'image/jpeg', 'image/webp'].includes(file.type) || file.size > 15 * 1024 * 1024) {
+                this.statusMessage = 'Choose a PNG, JPG, or WebP background under 15 MB.';
+                this.resetFileInput(upload);
+                return;
+            }
+
+            this.backgroundImage = await this.readFile(file);
+            this.statusMessage = 'Approved artwork added beneath the brand grid.';
+            this.resetFileInput(upload);
+        },
+
+        filesFromUpload(upload) {
+            return [...(upload?.files ?? [])];
+        },
+
+        resetFileInput(upload) {
+            if (typeof upload?.clear === 'function') {
+                upload.clear();
+            }
+        },
+
+        removeBackground() {
+            this.backgroundImage = null;
+            this.statusMessage = `${this.brandName} grid restored.`;
         },
 
         readFile(file) {
@@ -230,63 +388,95 @@ document.addEventListener('alpine:init', () => {
             });
         },
 
-        resetFileInput(upload) {
-            if (typeof upload?.clear === 'function') {
-                upload.clear();
+        addImage(event) {
+            const asset = this.imageLibrary.find((imageLayer) => imageLayer.id === event.currentTarget.dataset.imageId);
+
+            if (!asset) {
                 return;
             }
 
-            const input = upload?.querySelector?.('input[type="file"]');
+            const positions = this.imagePositionsForTemplate(this.placedImages.length);
+            const imageLayer = {
+                id: window.crypto.randomUUID(),
+                assetId: asset.id,
+                name: asset.name,
+                src: asset.src,
+                x: positions.x,
+                y: positions.y,
+                size: positions.size,
+                rotation: positions.rotation,
+                flipped: false,
+                layer: positions.layer,
+                style: '',
+                classNames: '',
+            };
 
-            if (input) {
-                input.value = '';
-            }
+            this.placedImages.push(imageLayer);
+            this.selectedImageId = imageLayer.id;
+            this.loadSelectedImageControls();
+            this.refreshImageStyles();
+            this.statusMessage = `${imageLayer.name} added to the canvas.`;
         },
 
-        removeSubject() {
-            this.subject = { type: 'person', src: null, name: '', x: 98, y: 47, scale: 68 };
-            this.isSubjectSelected = false;
-            this.statusMessage = 'Subject removed.';
+        selectImage(event) {
+            this.selectedImageId = event.currentTarget.dataset.layerId;
+            this.loadSelectedImageControls();
+            this.copyDragState = null;
+            this.logoDragState = null;
+            this.refreshImageStyles();
         },
 
-        selectSubject() {
-            this.isSubjectSelected = true;
+        deselectImage() {
+            this.selectedImageId = null;
+            this.refreshImageStyles();
         },
 
-        deselectSubject() {
-            this.isSubjectSelected = false;
-        },
+        startImageDrag(event) {
+            event.preventDefault();
+            this.selectedImageId = event.currentTarget.dataset.layerId;
+            this.loadSelectedImageControls();
+            this.copyDragState = null;
+            this.logoDragState = null;
 
-        startSubjectDrag(event) {
             const canvas = this.$root.querySelector('[data-image-studio-canvas]');
+            const imageLayer = this.selectedImage;
 
-            if (!canvas || !this.subject.src) {
+            if (!canvas || !imageLayer) {
                 return;
             }
 
-            event.currentTarget.setPointerCapture?.(event.pointerId);
-            this.isSubjectSelected = true;
-            this.resizeState = null;
             this.dragState = {
                 pointerId: event.pointerId,
                 startClientX: event.clientX,
                 startClientY: event.clientY,
-                startX: this.subject.x,
-                startY: this.subject.y,
+                startX: imageLayer.x,
+                startY: imageLayer.y,
                 canvasRect: canvas.getBoundingClientRect(),
             };
+
+            this.refreshImageStyles();
         },
 
-        startSubjectResize(event) {
-            const subjectElement = event.currentTarget.closest('.artboard-subject');
+        startImageResize(event) {
+            const imageElement = event.currentTarget.closest('[data-layer-id]');
+            const canvas = this.$root.querySelector('[data-image-studio-canvas]');
 
-            if (!subjectElement || !this.subject.src) {
+            if (!imageElement || !canvas) {
                 return;
             }
 
-            const subjectRect = subjectElement.getBoundingClientRect();
-            const centerClientX = subjectRect.left + subjectRect.width / 2;
-            const centerClientY = subjectRect.top + subjectRect.height / 2;
+            this.selectedImageId = imageElement.dataset.layerId;
+            this.loadSelectedImageControls();
+
+            const imageLayer = this.selectedImage;
+
+            if (!imageLayer) {
+                return;
+            }
+
+            const canvasRect = canvas.getBoundingClientRect();
+            const centerClientX = canvasRect.left + (imageLayer.x / 100) * canvasRect.width;
+            const centerClientY = canvasRect.top + (imageLayer.y / 100) * canvasRect.height;
             const startDistance = Math.hypot(event.clientX - centerClientX, event.clientY - centerClientY);
 
             if (startDistance < 1) {
@@ -294,74 +484,268 @@ document.addEventListener('alpine:init', () => {
             }
 
             event.currentTarget.setPointerCapture?.(event.pointerId);
-            this.isSubjectSelected = true;
             this.dragState = null;
+            this.copyDragState = null;
+            this.logoDragState = null;
             this.resizeState = {
                 pointerId: event.pointerId,
-                startScale: this.subject.scale,
+                startSize: imageLayer.size,
                 centerClientX,
                 centerClientY,
                 startDistance,
             };
+            this.refreshImageStyles();
         },
 
-        movePointer(event) {
-            if (this.resizeState && event.pointerId === this.resizeState.pointerId) {
-                const distance = Math.hypot(event.clientX - this.resizeState.centerClientX, event.clientY - this.resizeState.centerClientY);
-                this.subject.scale = this.clamp(
-                    this.resizeState.startScale * (distance / this.resizeState.startDistance),
-                    subjectScaleLimits.min,
-                    subjectScaleLimits.max
-                );
-                this.constrainSubject();
+        startCopyDrag(event) {
+            const canvas = this.$root.querySelector('[data-image-studio-canvas]');
+            const copy = event.currentTarget;
+
+            if (!canvas) {
                 return;
             }
 
-            if (!this.dragState || event.pointerId !== this.dragState.pointerId) {
+            const canvasRect = canvas.getBoundingClientRect();
+            const copyRect = copy.getBoundingClientRect();
+            const startX = ((copyRect.left - canvasRect.left) / canvasRect.width) * 100;
+            const startY = ((copyRect.top - canvasRect.top) / canvasRect.height) * 100;
+            const width = (copyRect.width / canvasRect.width) * 100;
+            const height = (copyRect.height / canvasRect.height) * 100;
+
+            copy.setPointerCapture?.(event.pointerId);
+            this.selectedImageId = null;
+            this.dragState = null;
+            this.resizeState = null;
+            this.logoDragState = null;
+            this.copyX = startX;
+            this.copyY = startY;
+            this.copyDragState = {
+                pointerId: event.pointerId,
+                startClientX: event.clientX,
+                startClientY: event.clientY,
+                startX,
+                startY,
+                minX: -10,
+                maxX: Math.max(-10, 110 - width),
+                minY: -10,
+                maxY: Math.max(-10, 110 - height),
+                canvasRect,
+            };
+            this.refreshImageStyles();
+        },
+
+        startLogoDrag(event) {
+            const canvas = this.$root.querySelector('[data-image-studio-canvas]');
+            const logo = event.currentTarget;
+
+            if (!canvas) {
+                return;
+            }
+
+            const canvasRect = canvas.getBoundingClientRect();
+            const logoRect = logo.getBoundingClientRect();
+            const startX = ((logoRect.left - canvasRect.left) / canvasRect.width) * 100;
+            const startY = ((logoRect.top - canvasRect.top) / canvasRect.height) * 100;
+            const width = (logoRect.width / canvasRect.width) * 100;
+            const height = (logoRect.height / canvasRect.height) * 100;
+
+            logo.setPointerCapture?.(event.pointerId);
+            this.selectedImageId = null;
+            this.dragState = null;
+            this.resizeState = null;
+            this.copyDragState = null;
+            this.logoX = startX;
+            this.logoY = startY;
+            this.logoDragState = {
+                pointerId: event.pointerId,
+                startClientX: event.clientX,
+                startClientY: event.clientY,
+                startX,
+                startY,
+                minX: -10,
+                maxX: Math.max(-10, 110 - width),
+                minY: -10,
+                maxY: Math.max(-10, 110 - height),
+                canvasRect,
+            };
+            this.refreshImageStyles();
+        },
+
+        movePointer(event) {
+            if (this.logoDragState && event.pointerId === this.logoDragState.pointerId) {
+                const deltaX = ((event.clientX - this.logoDragState.startClientX) / this.logoDragState.canvasRect.width) * 100;
+                const deltaY = ((event.clientY - this.logoDragState.startClientY) / this.logoDragState.canvasRect.height) * 100;
+
+                this.logoX = Math.min(this.logoDragState.maxX, Math.max(this.logoDragState.minX, this.logoDragState.startX + deltaX));
+                this.logoY = Math.min(this.logoDragState.maxY, Math.max(this.logoDragState.minY, this.logoDragState.startY + deltaY));
+
+                return;
+            }
+
+            if (this.copyDragState && event.pointerId === this.copyDragState.pointerId) {
+                const deltaX = ((event.clientX - this.copyDragState.startClientX) / this.copyDragState.canvasRect.width) * 100;
+                const deltaY = ((event.clientY - this.copyDragState.startClientY) / this.copyDragState.canvasRect.height) * 100;
+
+                this.copyX = Math.min(this.copyDragState.maxX, Math.max(this.copyDragState.minX, this.copyDragState.startX + deltaX));
+                this.copyY = Math.min(this.copyDragState.maxY, Math.max(this.copyDragState.minY, this.copyDragState.startY + deltaY));
+
+                return;
+            }
+
+            if (this.resizeState && event.pointerId === this.resizeState.pointerId && this.selectedImage) {
+                const distance = Math.hypot(event.clientX - this.resizeState.centerClientX, event.clientY - this.resizeState.centerClientY);
+                const size = this.resizeState.startSize * (distance / this.resizeState.startDistance);
+
+                this.selectedImage.size = Math.min(200, Math.max(16, size));
+                this.selectedImageSize = this.selectedImage.size;
+                this.refreshImageStyle(this.selectedImage);
+
+                return;
+            }
+
+            if (!this.dragState || event.pointerId !== this.dragState.pointerId || !this.selectedImage) {
                 return;
             }
 
             const deltaX = ((event.clientX - this.dragState.startClientX) / this.dragState.canvasRect.width) * 100;
             const deltaY = ((event.clientY - this.dragState.startClientY) / this.dragState.canvasRect.height) * 100;
 
-            this.subject.x = this.dragState.startX + deltaX;
-            this.subject.y = this.dragState.startY + deltaY;
-            this.constrainSubject();
+            this.selectedImage.x = Math.min(110, Math.max(-10, this.dragState.startX + deltaX));
+            this.selectedImage.y = Math.min(110, Math.max(-10, this.dragState.startY + deltaY));
+            this.refreshImageStyle(this.selectedImage);
         },
 
         stopPointer(event) {
+            if (this.logoDragState && event.pointerId === this.logoDragState.pointerId) {
+                this.statusMessage = 'Logo moved.';
+                this.logoDragState = null;
+            }
+
+            if (this.copyDragState && event.pointerId === this.copyDragState.pointerId) {
+                this.statusMessage = 'Headline moved.';
+                this.copyDragState = null;
+            }
+
             if (this.resizeState && event.pointerId === this.resizeState.pointerId) {
+                this.statusMessage = `${this.selectedImage?.name ?? 'Image'} resized to ${Math.round(this.selectedImageSize)}%.`;
                 this.resizeState = null;
-                this.statusMessage = 'Subject resized inside its safe zone.';
             }
 
             if (this.dragState && event.pointerId === this.dragState.pointerId) {
                 this.dragState = null;
-                this.statusMessage = 'Subject repositioned inside its safe zone.';
             }
         },
 
-        constrainSubject() {
-            const minimumX = subjectZoneStart + this.subject.scale / 2;
-
-            this.subject.x = this.clamp(this.subject.x, minimumX, 112);
-            this.subject.y = this.clamp(this.subject.y, -10, 108);
+        resetCopyPosition() {
+            this.copyX = null;
+            this.copyY = null;
+            this.copyDragState = null;
         },
 
-        clamp(value, minimum, maximum) {
-            return Math.min(maximum, Math.max(minimum, value));
+        resetLogoLayer() {
+            this.logoX = null;
+            this.logoY = null;
+            this.logoScale = 100;
+            this.logoDragState = null;
+        },
+
+        syncSelectedImage() {
+            if (this.selectedImage) {
+                this.selectedImage.size = this.selectedImageSize;
+                this.selectedImage.rotation = this.selectedImageRotation;
+                this.refreshImageStyle(this.selectedImage);
+            }
+        },
+
+        loadSelectedImageControls() {
+            if (!this.selectedImage) {
+                return;
+            }
+
+            this.selectedImageSize = this.selectedImage.size;
+            this.selectedImageRotation = this.selectedImage.rotation;
+        },
+
+        refreshImageStyles() {
+            this.placedImages.forEach((imageLayer) => this.refreshImageStyle(imageLayer));
+        },
+
+        refreshImageStyle(imageLayer) {
+            const flip = imageLayer.flipped ? -1 : 1;
+            imageLayer.style = `left: ${imageLayer.x}%; top: ${imageLayer.y}%; width: ${imageLayer.size}%; transform: translate(-50%, -50%) rotate(${imageLayer.rotation}deg) scaleX(${flip});`;
+            imageLayer.classNames = [imageLayer.id === this.selectedImageId ? 'is-selected' : '', imageLayer.layer === 'above' ? 'is-above-text' : '']
+                .filter(Boolean)
+                .join(' ');
+        },
+
+        setSelectedImageLayer(event) {
+            if (!this.selectedImage || !['behind', 'above'].includes(event.currentTarget.dataset.imageLayer)) {
+                return;
+            }
+
+            this.selectedImage.layer = event.currentTarget.dataset.imageLayer;
+            this.refreshImageStyle(this.selectedImage);
+            this.statusMessage = `${this.selectedImage.name} moved ${this.selectedImage.layer === 'above' ? 'above' : 'behind'} the headline.`;
+        },
+
+        flipSelectedImage() {
+            if (!this.selectedImage) {
+                return;
+            }
+
+            this.selectedImage.flipped = !this.selectedImage.flipped;
+            this.refreshImageStyle(this.selectedImage);
+        },
+
+        bringSelectedForward() {
+            const index = this.placedImages.findIndex((imageLayer) => imageLayer.id === this.selectedImageId);
+
+            if (index < 0 || index === this.placedImages.length - 1) {
+                return;
+            }
+
+            const [imageLayer] = this.placedImages.splice(index, 1);
+            this.placedImages.splice(index + 1, 0, imageLayer);
+        },
+
+        sendSelectedBackward() {
+            const index = this.placedImages.findIndex((imageLayer) => imageLayer.id === this.selectedImageId);
+
+            if (index <= 0) {
+                return;
+            }
+
+            const [imageLayer] = this.placedImages.splice(index, 1);
+            this.placedImages.splice(index - 1, 0, imageLayer);
+        },
+
+        removeSelectedImage() {
+            if (!this.selectedImageId) {
+                return;
+            }
+
+            this.placedImages = this.placedImages.filter((imageLayer) => imageLayer.id !== this.selectedImageId);
+            this.selectedImageId = null;
+            this.refreshImageStyles();
+            this.statusMessage = 'Image removed from the canvas.';
+        },
+
+        clearImages() {
+            this.placedImages = [];
+            this.selectedImageId = null;
+            this.statusMessage = 'Canvas images cleared.';
         },
 
         handleKeyboard(event) {
             const isFormControl = ['INPUT', 'TEXTAREA', 'SELECT'].includes(event.target.tagName);
 
-            if (isFormControl || !this.subject.src || !this.isSubjectSelected) {
+            if (isFormControl || !this.selectedImage) {
                 return;
             }
 
             if (['Backspace', 'Delete'].includes(event.key)) {
                 event.preventDefault();
-                this.removeSubject();
+                this.removeSelectedImage();
                 return;
             }
 
@@ -378,9 +762,9 @@ document.addEventListener('alpine:init', () => {
             }
 
             event.preventDefault();
-            this.subject.x += movements[event.key][0];
-            this.subject.y += movements[event.key][1];
-            this.constrainSubject();
+            this.selectedImage.x += movements[event.key][0];
+            this.selectedImage.y += movements[event.key][1];
+            this.refreshImageStyle(this.selectedImage);
         },
 
         sanitizeExportClone(clone) {
@@ -408,13 +792,13 @@ document.addEventListener('alpine:init', () => {
                 position: 'fixed',
                 top: '0',
                 left: '-100000px',
-                width: `${thumbnailFormat.width}px`,
-                minWidth: `${thumbnailFormat.width}px`,
+                width: `${this.selectedFormat.width}px`,
+                minWidth: `${this.selectedFormat.width}px`,
                 maxWidth: 'none',
-                height: `${thumbnailFormat.height}px`,
-                minHeight: `${thumbnailFormat.height}px`,
+                height: `${this.selectedFormat.height}px`,
+                minHeight: `${this.selectedFormat.height}px`,
                 maxHeight: 'none',
-                aspectRatio: `${thumbnailFormat.width} / ${thumbnailFormat.height}`,
+                aspectRatio: `${this.selectedFormat.width} / ${this.selectedFormat.height}`,
                 boxShadow: 'none',
                 pointerEvents: 'none',
             });
@@ -426,28 +810,12 @@ document.addEventListener('alpine:init', () => {
             return exportCanvas;
         },
 
-        async waitForImages(canvas) {
-            await Promise.all(
-                [...canvas.querySelectorAll('img')].map(async (image) => {
-                    if (!image.complete) {
-                        await new Promise((resolve) => image.addEventListener('load', resolve, { once: true }));
-                    }
-
-                    if (typeof image.decode === 'function') {
-                        await image.decode().catch(() => undefined);
-                    }
-                })
-            );
-        },
-
         async exportPng() {
             const canvas = this.$root.querySelector('[data-image-studio-canvas]');
             let exportCanvas = null;
 
-            this.validateHeadline();
-
-            if (!canvas || canvas.offsetWidth === 0 || !this.canExport) {
-                this.statusMessage = this.headlineError || 'The canvas is not ready to export yet.';
+            if (!canvas || canvas.offsetWidth === 0) {
+                this.statusMessage = 'The canvas is not ready to export yet.';
                 return;
             }
 
@@ -456,31 +824,31 @@ document.addEventListener('alpine:init', () => {
 
             try {
                 await document.fonts.ready;
-                await document.fonts.load('700 128px "Instrument Sans Condensed"');
+                await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
                 exportCanvas = this.createExportCanvas(canvas);
-                await this.waitForImages(exportCanvas);
                 await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
                 const dataUrl = await domToPng(exportCanvas, {
-                    width: thumbnailFormat.width,
-                    height: thumbnailFormat.height,
-                    scale: thumbnailFormat.exportScale,
+                    width: this.selectedFormat.width,
+                    height: this.selectedFormat.height,
+                    scale: this.selectedFormat.exportScale,
                     style: {
-                        width: `${thumbnailFormat.width}px`,
-                        height: `${thumbnailFormat.height}px`,
+                        width: `${this.selectedFormat.width}px`,
+                        height: `${this.selectedFormat.height}px`,
                         maxWidth: 'none',
                         maxHeight: 'none',
                     },
-                    backgroundColor: this.activeBackground.baseFill,
+                    backgroundColor: this.brand === 'cloud' ? '#0927c9' : '#f72b1c',
                     onCloneEachNode: (clone) => this.sanitizeExportClone(clone),
                     filter: (node) => !(node instanceof Element && node.hasAttribute('data-export-ignore')),
                 });
 
                 const link = document.createElement('a');
-                link.download = `${this.slugify(this.headline)}-thumbnail.png`;
+                link.download = `${this.slugify(this.title)}-thumbnail.png`;
                 link.href = dataUrl;
                 link.click();
-                this.statusMessage = '2560 × 1440 PNG exported.';
+                this.statusMessage = `${this.exportWidth} × ${this.exportHeight} PNG exported.`;
             } catch (error) {
                 console.error(error);
                 this.statusMessage = 'Export failed. Check the browser console for details.';
@@ -495,9 +863,9 @@ document.addEventListener('alpine:init', () => {
                 value
                     .toLowerCase()
                     .trim()
-                    .replace(/[^a-z0-9]+/gu, '-')
-                    .replace(/^-|-$/gu, '')
-                    .slice(0, 48) || 'laravel-cloud'
+                    .replace(/[^a-z0-9]+/g, '-')
+                    .replace(/^-|-$/g, '')
+                    .slice(0, 48) || 'imagen-design'
             );
         },
     }));
